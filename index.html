@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CREW - 作品分析 (v2 / Cockpit)</title>
+    <title>CREW - 作品分析</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Chart.js Annotation Plugin (公開前後イベント注釈・目標バンド用) -->
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Google Fonts -->
@@ -38,7 +36,7 @@
             font-family: 'Noto Sans JP', sans-serif;
             background-color: var(--bg-body);
             color: var(--text-main);
-            padding-top: 168px; /* v2: ヘッドラインバンド分を加算 */
+            padding-top: 120px; /* cast_bytheater_v3 に合わせる */
             overflow-x: hidden;
             height: auto;
             min-height: 100vh;
@@ -1341,434 +1339,472 @@
             color: #9d174d;
         }
 
-        /* ============================================================
-           v2 Cockpit: Headline Band / Action Cards / Sankey / Z-score etc.
-           ============================================================ */
-
-        /* ===== Headline Band（ヘッダー直下 / 常駐 / リアルタイム指標） ===== */
-        .headline-band {
-            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-            border-bottom: 1px solid #334155;
-            color: #ffffff;
-            position: relative;
-        }
-        .headline-band-inner {
-            max-width: 80rem;
-            margin: 0 auto;
-            padding: 8px 16px;
-            display: flex;
-            align-items: stretch;
-            gap: 14px;
-            min-height: 48px;
-        }
-        .hb-cell {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 4px 12px;
-            border-right: 1px solid rgba(148, 163, 184, 0.18);
-        }
-        .hb-cell:last-child { border-right: 0; }
-        .hb-cell.hb-flex { flex: 1; min-width: 0; }
-        .hb-icon {
-            width: 26px; height: 26px;
-            border-radius: 6px;
-            display: flex; align-items: center; justify-content: center;
-            background-color: rgba(67, 56, 202, 0.18);
-            color: #a5b4fc;
-            flex-shrink: 0;
-        }
-        .hb-icon.hb-warn { background-color: rgba(245, 158, 11, 0.18); color: #fbbf24; }
-        .hb-icon.hb-bad  { background-color: rgba(239, 68, 68, 0.18); color: #fca5a5; }
-        .hb-icon.hb-good { background-color: rgba(16, 185, 129, 0.18); color: #6ee7b7; }
-        .hb-label {
-            font-size: 9px;
-            font-weight: 700;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            line-height: 1;
-        }
-        .hb-value {
-            font-family: 'Manrope', sans-serif;
-            font-size: 16px;
-            font-weight: 800;
-            color: #ffffff;
-            line-height: 1.1;
-            letter-spacing: -0.02em;
-        }
-        .hb-sub {
-            font-size: 10px;
-            color: #cbd5e1;
-            font-weight: 600;
-            line-height: 1.1;
-            margin-top: 2px;
-        }
-        .hb-anomaly {
-            flex: 1;
-            min-width: 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 10px;
-            background-color: rgba(245, 158, 11, 0.12);
-            border-radius: 6px;
-            border: 1px solid rgba(245, 158, 11, 0.35);
-        }
-        .hb-anomaly.is-bad {
-            background-color: rgba(239, 68, 68, 0.12);
-            border-color: rgba(239, 68, 68, 0.4);
-        }
-        .hb-anomaly.is-good {
-            background-color: rgba(16, 185, 129, 0.12);
-            border-color: rgba(16, 185, 129, 0.4);
-        }
-        .hb-anomaly-list {
-            font-size: 11px;
-            color: #fde68a;
-            font-weight: 600;
-            line-height: 1.35;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .hb-anomaly.is-bad .hb-anomaly-list { color: #fecaca; }
-        .hb-anomaly.is-good .hb-anomaly-list { color: #a7f3d0; }
-        .hb-anomaly-count {
-            font-family: 'Manrope', sans-serif;
-            font-size: 11px;
-            font-weight: 800;
-            color: #ffffff;
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 1px 7px;
-            border-radius: 9999px;
-        }
-        .hb-progress-track {
-            width: 100px;
-            height: 6px;
-            background-color: rgba(148, 163, 184, 0.2);
-            border-radius: 9999px;
-            overflow: hidden;
-            margin-top: 4px;
-        }
-        .hb-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #f97316, #4338ca);
-            border-radius: 9999px;
-            transition: width 0.3s ease;
+        /* =======================================================================
+           ✦ v4 REDESIGN LAYER ✦  「CREW Daily」
+           作品宣伝担当者が毎日使うための、やさしく・わかりやすいデザイン。
+           v1 の内容(データ/チャート/ID)はそのまま、見た目と情報設計だけを刷新。
+           ======================================================================= */
+        :root {
+            --v4-bg: #eef1f9;
+            --v4-bg-soft: #f6f8fd;
+            --v4-card: #ffffff;
+            --v4-ink: #1f2440;
+            --v4-ink-soft: #5b6178;
+            --v4-muted: #8a90a6;
+            --v4-line: #e7eaf5;
+            --v4-line-soft: #eef1f9;
+            --v4-brand: #5b53e6;
+            --v4-brand-deep: #4338ca;
+            --v4-brand-soft: #eef0ff;
+            --v4-good: #15a06b;
+            --v4-good-soft: #e4f7ef;
+            --v4-warn: #e08600;
+            --v4-warn-soft: #fdf2dd;
+            --v4-bad: #e0483c;
+            --v4-bad-soft: #fdecea;
+            --v4-radius: 18px;
+            --v4-radius-sm: 12px;
+            --v4-shadow: 0 6px 22px -10px rgba(40, 44, 95, 0.28);
+            --v4-shadow-sm: 0 2px 10px -4px rgba(40, 44, 95, 0.18);
         }
 
-        /* ===== "今週の打ち手" アクションカード ===== */
-        .action-cards-section {
-            background-color: #ffffff;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 1rem 1.25rem 1.25rem 1.25rem;
-            margin-bottom: 1.5rem;
-        }
-        .action-cards-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 0.75rem;
-            gap: 8px;
-        }
-        .action-cards-title {
-            font-size: 1rem;
-            font-weight: 800;
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .action-cards-title .ac-icon {
-            width: 28px; height: 28px;
-            border-radius: 6px;
-            display: flex; align-items: center; justify-content: center;
-            background-color: #fef3c7;
-            color: #b45309;
-        }
-        .action-cards-title-sub {
-            font-size: 11px;
-            color: #94a3b8;
-            font-weight: 600;
-            margin-left: 8px;
-        }
-        .action-cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 10px;
-        }
-        .action-card {
-            position: relative;
-            border: 1px solid var(--border);
-            border-left-width: 4px;
-            background-color: #f8fafc;
-            border-radius: 4px;
-            padding: 10px 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        .action-card[data-severity="high"] { border-left-color: #ef4444; background-color: #fef2f2; }
-        .action-card[data-severity="medium"] { border-left-color: #f59e0b; background-color: #fffbeb; }
-        .action-card[data-severity="low"] { border-left-color: #3b82f6; background-color: #eff6ff; }
-        .action-card[data-severity="positive"] { border-left-color: #10b981; background-color: #ecfdf5; }
-        .ac-row1 {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 9px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .ac-tag {
-            padding: 1px 6px;
-            border-radius: 9999px;
-            background-color: #ffffff;
-            border: 1px solid var(--border);
-            color: #64748b;
-        }
-        .ac-tag.severity-high { background-color: #fee2e2; color: #b91c1c; border-color: #fecaca; }
-        .ac-tag.severity-medium { background-color: #fef3c7; color: #b45309; border-color: #fde68a; }
-        .ac-tag.severity-low { background-color: #dbeafe; color: #1d4ed8; border-color: #bfdbfe; }
-        .ac-tag.severity-positive { background-color: #d1fae5; color: #047857; border-color: #a7f3d0; }
-        .ac-rule-id {
-            font-family: 'Manrope', sans-serif;
-            color: #94a3b8;
-        }
-        .ac-detect {
-            font-size: 13px;
-            font-weight: 800;
-            color: var(--text-dark);
-            line-height: 1.4;
-        }
-        .ac-reason {
-            font-size: 11px;
-            color: #475569;
-            line-height: 1.55;
-        }
-        .ac-do {
-            margin-top: 3px;
-            display: flex;
-            align-items: flex-start;
-            gap: 6px;
-            padding: 6px 8px;
-            background-color: #ffffff;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            font-size: 11px;
-            color: var(--text-dark);
-            font-weight: 600;
-            line-height: 1.55;
-        }
-        .ac-do .ac-do-icon {
-            color: var(--accent);
-            flex-shrink: 0;
-            margin-top: 1px;
-        }
-        .ac-empty {
-            padding: 20px;
-            text-align: center;
-            color: #94a3b8;
-            font-size: 12px;
-            border: 1px dashed var(--border);
-            border-radius: 4px;
+        body {
+            background:
+                radial-gradient(1200px 480px at 78% -8%, #e9e7ff 0%, rgba(233,231,255,0) 60%),
+                radial-gradient(900px 420px at 4% 2%, #e2f0ff 0%, rgba(226,240,255,0) 55%),
+                var(--v4-bg);
+            color: var(--v4-ink);
+            padding-top: 124px;
         }
 
-        /* ===== 熱伝導テーブル / Sankey ===== */
-        .heat-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
+        /* ---------- Header ---------- */
+        .header-fixed {
+            background: linear-gradient(110deg, #211d54 0%, #312e81 48%, #4338ca 100%);
+            box-shadow: 0 8px 28px -16px rgba(20, 18, 60, 0.9);
         }
-        @media (max-width: 1024px) {
-            .heat-section { grid-template-columns: 1fr; }
-        }
-        .heat-table-wrap {
-            overflow-x: auto;
-        }
-        .heat-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-        .heat-table th {
-            text-align: left;
-            font-size: 10px;
-            font-weight: 700;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            padding: 6px 8px;
-            border-bottom: 1px solid var(--border);
-            background-color: #f8fafc;
-            white-space: nowrap;
-        }
-        .heat-table td {
-            padding: 8px;
-            border-bottom: 1px solid #f1f5f9;
-            vertical-align: middle;
-        }
-        .heat-source-name {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 700;
-            color: var(--text-dark);
-        }
-        .heat-source-type {
-            font-size: 9px;
-            font-weight: 700;
-            padding: 1px 6px;
-            border-radius: 9999px;
-            background: #e2e8f0;
-            color: #475569;
-            text-transform: uppercase;
-        }
-        .heat-source-type.is-cast { background: #ede9fe; color: #6d28d9; }
-        .heat-source-type.is-tribe { background: #fce7f3; color: #be185d; }
-        .heat-source-type.is-genre { background: #d1fae5; color: #047857; }
-        .heat-source-type.is-brand { background: #fef3c7; color: #b45309; }
-        .heat-num {
-            font-family: 'Manrope', sans-serif;
-            font-feature-settings: "tnum";
-            text-align: right;
-            color: var(--text-dark);
-            white-space: nowrap;
-        }
-        .heat-pct-bar {
-            position: relative;
-            height: 14px;
-            border-radius: 9999px;
-            background-color: #f1f5f9;
-            overflow: hidden;
-            min-width: 80px;
-        }
-        .heat-pct-bar-fill {
-            position: absolute;
-            top: 0; left: 0; bottom: 0;
+        .header-fixed > div[style] { display: none !important; } /* 旧グラデ細線を隠す */
+        .header-fixed header { height: 60px; }
+        .compare-trigger-btn {
+            background-color: rgba(255,255,255,0.10);
+            border: 1px solid rgba(255,255,255,0.22);
             border-radius: 9999px;
         }
-        .heat-pct-bar-fill.good { background: linear-gradient(90deg, #6ee7b7, #10b981); }
-        .heat-pct-bar-fill.mid { background: linear-gradient(90deg, #fde68a, #f59e0b); }
-        .heat-pct-bar-fill.bad { background: linear-gradient(90deg, #fecaca, #ef4444); }
-        .heat-status-pill {
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 9999px;
-            white-space: nowrap;
-        }
-        .heat-status-pill.good { background: #d1fae5; color: #047857; }
-        .heat-status-pill.opportunity { background: #fef3c7; color: #b45309; }
-        .heat-status-pill.weak { background: #fee2e2; color: #b91c1c; }
-        .heat-status-pill.efficient { background: #dbeafe; color: #1d4ed8; }
+        .compare-trigger-btn:hover { background-color: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.4); }
+        .header-toggle-btn { border-radius: 10px; }
 
-        .sankey-wrap {
-            position: relative;
-            min-height: 320px;
-            background-color: #f8fafc;
-            border-radius: 4px;
-            border: 1px solid var(--border);
-            overflow: hidden;
+        /* ---------- Sub nav (timeline) ---------- */
+        .sub-nav {
+            background-color: rgba(255,255,255,0.86);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--v4-line);
+            height: 52px;
         }
-        .sankey-svg { display: block; width: 100%; height: 100%; }
-        .sankey-tooltip {
-            position: absolute;
-            pointer-events: none;
-            background-color: rgba(15, 23, 42, 0.92);
-            color: #ffffff;
-            padding: 6px 10px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            white-space: nowrap;
-            z-index: 30;
-            opacity: 0;
-            transition: opacity 0.12s;
+        .sub-nav::before { background: linear-gradient(to right, rgba(255,255,255,0.95), transparent); }
+        .sub-nav::after  { background: linear-gradient(to left, rgba(255,255,255,0.95), transparent); }
+        .nav-item {
+            border-radius: 9999px;
+            border: 1px solid var(--v4-line);
+            color: var(--v4-muted);
+            background: #fff;
+            height: 2.1rem;
         }
-        .sankey-tooltip.show { opacity: 1; }
-        .sankey-node-label {
-            font-family: 'Noto Sans JP', sans-serif;
-            font-size: 11px;
-            font-weight: 700;
-            fill: #334155;
-            pointer-events: none;
+        .nav-item:hover { background: var(--v4-brand-soft); color: var(--v4-brand-deep); border-color: #d8d9ff; }
+        .nav-item.active {
+            background: var(--v4-brand-soft);
+            color: var(--v4-brand-deep);
+            border-color: #c2c2ff;
+            box-shadow: inset 0 0 0 1px #c2c2ff;
         }
-        .sankey-node-value {
-            font-family: 'Manrope', sans-serif;
-            font-size: 9.5px;
-            font-weight: 600;
-            fill: #94a3b8;
-            pointer-events: none;
+        .nav-item.active[data-week="0"] {
+            background: linear-gradient(120deg, var(--v4-brand) 0%, #7c6cf5 100%);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 4px 12px -4px rgba(91,83,230,0.6);
         }
+        .phase-divider { background-color: var(--v4-line); }
 
-        /* ===== Z-score モードトグル / カード共通ツールバー ===== */
-        .card-toolbar {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-left: auto;
+        /* ---------- Cards ---------- */
+        .solid-card {
+            border: 1px solid var(--v4-line);
+            border-radius: var(--v4-radius);
+            box-shadow: var(--v4-shadow-sm);
+            background: var(--v4-card);
+            transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
         }
-        .zscore-toggle {
-            display: inline-flex;
-            background-color: #f1f5f9;
-            border-radius: 6px;
-            padding: 2px;
-        }
-        .zscore-toggle-btn {
-            font-size: 10px;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 4px;
-            border: 0;
+        .solid-card:hover { box-shadow: var(--v4-shadow); border-color: #dcdffb; }
+        .card-header {
             background: transparent;
-            color: #64748b;
-            cursor: pointer;
-            transition: background-color 0.12s, color 0.12s;
+            border-bottom: 1px solid var(--v4-line-soft);
+            padding: 0.85rem 1.1rem;
+            font-size: 0.82rem;
+            color: var(--v4-ink);
+            text-transform: none;
+            letter-spacing: 0;
+            font-weight: 800;
         }
-        .zscore-toggle-btn:hover { color: var(--text-dark); }
-        .zscore-toggle-btn.is-active {
-            background-color: #ffffff;
-            color: var(--accent);
-            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+        .card-header span { letter-spacing: 0; }
+        .card-header-desc { color: var(--v4-muted); font-weight: 500; }
+        .card-body { padding: 1.1rem; }
+
+        /* ---------- Section ---------- */
+        .analysis-group { margin-bottom: 1.75rem; }
+        .section-container { border-radius: var(--v4-radius); border-color: var(--v4-line); }
+        .section-title { font-size: 1.18rem; font-weight: 900; color: var(--v4-ink); letter-spacing: -0.01em; }
+        .icon-box {
+            border-radius: 13px;
+            width: 2.6rem; height: 2.6rem;
+            font-size: 1.2rem;
+            box-shadow: var(--v4-shadow-sm);
+        }
+        .section-desc {
+            border-left: 3px solid #d8dbf3;
+            color: var(--v4-ink-soft);
+            font-size: 0.9rem;
+            margin-left: 0;
+            background: rgba(255,255,255,0.55);
+            border-radius: 0 10px 10px 0;
+            padding: 0.5rem 0.9rem;
         }
 
-        .kpi-z-row {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 3px;
-            font-size: 10px;
-            font-weight: 600;
-            color: #64748b;
-        }
-        .kpi-z-pill {
-            font-family: 'Manrope', sans-serif;
-            font-weight: 700;
-            padding: 1px 7px;
-            border-radius: 9999px;
-            font-size: 10px;
-        }
-        .kpi-z-pill.high { background: #ecfdf5; color: #047857; }
-        .kpi-z-pill.low { background: #fef2f2; color: #dc2626; }
-        .kpi-z-pill.neu { background: #f1f5f9; color: #64748b; }
+        /* ---------- Badges & pills ---------- */
+        .source-badge { border-radius: 9999px; }
+        .rank-badge { border-radius: 9999px; border-color: var(--v4-line); }
+        .kpi-diff-pill, .summary-kpi-diff, .comp-diff { border-radius: 9999px; }
+        .metric-value { color: var(--v4-ink); }
+        .keyword-tag { border-radius: 9999px; background-color: var(--v4-brand-soft); border-color: #d8d9ff; color: var(--v4-brand-deep); }
 
-        /* ===== Goal/Anomaly カラー指示 ===== */
-        .stat-row { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
-        .stat-chip {
-            font-size: 9.5px;
-            font-weight: 700;
-            padding: 1px 6px;
-            border-radius: 9999px;
-            background: #f1f5f9;
-            color: #475569;
+        /* ---------- Page section nav (新規: セクション間ジャンプ) ---------- */
+        .v4-secnav {
+            display: flex; flex-wrap: wrap; gap: 8px;
+            margin-bottom: 1.25rem;
         }
-        .stat-chip.warn { background: #fef3c7; color: #92400e; }
-        .stat-chip.bad { background: #fee2e2; color: #b91c1c; }
-        .stat-chip.good { background: #d1fae5; color: #047857; }
+        .v4-secnav a {
+            display: inline-flex; align-items: center; gap: 7px;
+            background: #fff;
+            border: 1px solid var(--v4-line);
+            border-radius: 9999px;
+            padding: 7px 14px 7px 11px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--v4-ink-soft);
+            box-shadow: var(--v4-shadow-sm);
+            transition: all .15s ease;
+            white-space: nowrap;
+        }
+        .v4-secnav a:hover { color: var(--v4-brand-deep); border-color: #c8caf6; transform: translateY(-1px); }
+        .v4-secnav a .v4-secnav-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+        /* ---------- Daily check hero (サマリーを毎日のチェック起点に再構成) ---------- */
+        .page-summary-panel {
+            background: linear-gradient(135deg, #ffffff 0%, #fbfbff 100%);
+            border: 1px solid var(--v4-line);
+            border-radius: 22px;
+            box-shadow: var(--v4-shadow);
+            padding: 1.5rem 1.6rem 1.4rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .page-summary-panel::before {
+            content: "";
+            position: absolute; inset: 0 0 auto 0; height: 5px;
+            background: linear-gradient(90deg, var(--v4-brand) 0%, #7c6cf5 45%, #38bdf8 100%);
+        }
+        .v4-daily-head {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 0.35rem;
+        }
+        .v4-daily-badge {
+            display: inline-flex; align-items: center; gap: 7px;
+            background: var(--v4-brand-soft);
+            color: var(--v4-brand-deep);
+            font-weight: 800; font-size: 0.72rem;
+            padding: 5px 12px; border-radius: 9999px;
+            letter-spacing: 0.04em;
+        }
+        .weekly-page-title { font-size: 1.3rem; font-weight: 900; margin-bottom: 0.15rem; }
+        .page-summary-panel .weekly-intro { color: var(--v4-ink-soft); font-size: 0.86rem; margin-bottom: 1.2rem; }
+
+        .weekly-hero {
+            border: 1px solid var(--v4-line);
+            border-radius: 16px;
+            box-shadow: var(--v4-shadow-sm);
+            background:
+                radial-gradient(420px 200px at 92% 0%, #f0eeff 0%, rgba(240,238,255,0) 70%),
+                #ffffff;
+        }
+        .weekly-hero-inner { padding: 1.5rem 1.6rem; gap: 1.75rem; }
+        @media (min-width: 640px) { .weekly-hero-inner { grid-template-columns: minmax(260px,auto) 1fr; } }
+        .weekly-hero-period {
+            background: var(--v4-brand-soft);
+            color: var(--v4-brand-deep);
+            border-radius: 9999px;
+            font-weight: 800;
+        }
+        .weekly-hero-cvr-value.is-emphasis { font-size: clamp(2.9rem, 5vw, 3.9rem); }
+        .weekly-hero-point {
+            font-size: 0.72rem; font-weight: 800; color: var(--v4-muted);
+            text-transform: uppercase; letter-spacing: 0.08em;
+            display: inline-flex; align-items: center; gap: 6px;
+            margin-bottom: 0.6rem;
+        }
+        .weekly-hero-point::before { content: "💡"; }
+        .weekly-hero-highlight { font-size: 0.95rem; line-height: 1.85; color: var(--v4-ink); }
+
+        /* 観客反応指数のステータス表示（好調/注意/要注意） */
+        .v4-status-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            align-self: flex-start;
+            font-weight: 800; font-size: 0.78rem;
+            padding: 5px 13px; border-radius: 9999px;
+            margin-top: 0.7rem;
+        }
+        .v4-status-pill.good { background: var(--v4-good-soft); color: var(--v4-good); }
+        .v4-status-pill.warn { background: var(--v4-warn-soft); color: var(--v4-warn); }
+        .v4-status-pill.bad  { background: var(--v4-bad-soft); color: var(--v4-bad); }
+        .v4-status-pill.neu  { background: #eef1f9; color: var(--v4-ink-soft); }
+
+        .summary-donut-card {
+            border: 1px solid var(--v4-line);
+            border-radius: 16px;
+            box-shadow: var(--v4-shadow-sm);
+        }
+        .summary-donut-title { color: var(--v4-ink); font-weight: 800; }
+
+        /* ---------- 「今日のチェックポイント」をコンパクト化 ---------- */
+        .page-summary-panel { padding: 0.7rem 1rem 0.75rem; border-radius: 14px; }
+        .v4-daily-head { display: inline-flex; vertical-align: middle; margin: 0; }
+        .v4-daily-badge { font-size: 0.6rem; padding: 2px 8px; }
+        .weekly-page-title { display: inline-block; vertical-align: middle; font-size: 0.94rem; margin: 0 0 0.45rem 8px; }
+        .page-summary-panel .weekly-intro { display: none; }
+        .weekly-hero { border-radius: 11px; }
+        .weekly-hero-inner { padding: 0.65rem 0.85rem; gap: 0.85rem; align-items: center; }
+        .weekly-hero-cvr-formula { display: none; }
+        .weekly-hero-cvr-label.is-emphasis { font-size: 0.72rem; }
+        .weekly-hero-cvr-value.is-emphasis { font-size: clamp(1.7rem, 2.6vw, 2.1rem); }
+        .weekly-hero-cvr-wrap { gap: 0.1rem; }
+        .weekly-hero-point { margin-bottom: 0.25rem; }
+        .weekly-hero-highlight {
+            font-size: 0.78rem; line-height: 1.55;
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .v4-status-pill { margin-top: 0.3rem; font-size: 0.7rem; padding: 2px 9px; }
+        .summary-post-kpi-row { gap: 0.6rem; }
+        .summary-donut-card { padding: 0.7rem 0.9rem 0.6rem; }
+        .summary-donut-title { font-size: 0.8rem; margin-bottom: 0.4rem; }
+        .summary-donut-canvas { height: 138px; min-height: 138px; max-width: 180px; }
+        .summary-donut-caption { font-size: 0.72rem; margin-top: 0.35rem; }
+        .summary-post-stack { gap: 0.6rem; }
+        .page-summary-ds { margin-top: 0.5rem !important; }
+        .page-summary-ds .panel-ds-line { font-size: 0.66rem; }
+
+        /* ---------- 比較チップ（前週比 / 公開初週比） ---------- */
+        .comp-cap { font-size: 0.64rem; color: var(--v4-muted); font-weight: 700; margin-left: 2px; }
+        .v4-cmp-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 0.35rem; }
+        .v4-cmp-chip {
+            font-size: 0.68rem; font-weight: 800; border-radius: 999px;
+            padding: 1px 8px; white-space: nowrap;
+            border: 1px solid var(--v4-line); background: #fff; color: var(--v4-ink-soft);
+        }
+        .v4-cmp-chip.pos { color: var(--v4-good); background: var(--v4-good-soft); border-color: #bfe8d4; }
+        .v4-cmp-chip.neg { color: var(--v4-bad); background: var(--v4-bad-soft); border-color: #f4cfca; }
+        .v4-cmp-chip.neu { color: var(--v4-ink-soft); background: var(--v4-line-soft); border-color: var(--v4-line); }
+
+        /* ---------- スパークライン ---------- */
+        .v4-spark-wrap { margin-top: 0.4rem; }
+        .v4-spark-cap { display: block; font-size: 0.62rem; color: var(--v4-muted); font-weight: 700; margin-bottom: 1px; }
+        .v4-spark-canvas { position: relative; width: 100%; max-width: 240px; height: 30px; }
+
+        /* ---------- モメンタム指標タイル ---------- */
+        .v4-mom-head {
+            font-size: 0.82rem; font-weight: 800; color: var(--v4-ink);
+            display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+            margin: 0 0 0.05rem;
+        }
+        .v4-mom-sub { font-size: 0.68rem; font-weight: 600; color: var(--v4-muted); }
+        .v4-mom-row { display: grid; gap: 0.6rem; }
+        .v4-mom-row-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .v4-mom-row-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        @media (max-width: 720px) { .v4-mom-row-4, .v4-mom-row-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 460px) { .v4-mom-row-4, .v4-mom-row-3 { grid-template-columns: 1fr; } }
+        .v4-mom-tile {
+            background: #fff; border: 1px solid var(--v4-line);
+            border-radius: 10px; box-shadow: var(--v4-shadow-sm);
+            padding: 0.45rem 0.65rem;
+            display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 7px;
+        }
+        .v4-mom-label {
+            display: flex; align-items: center; gap: 4px;
+            font-size: 0.68rem; font-weight: 700; color: var(--v4-ink-soft);
+            width: 100%; margin-bottom: 0.1rem;
+        }
+        .v4-mom-label i { color: var(--v4-brand); width: 12px; height: 12px; }
+        .v4-mom-val {
+            font-size: 1.15rem; font-weight: 900; color: var(--v4-ink);
+            line-height: 1.05; display: inline-flex; align-items: baseline; gap: 3px; margin: 0;
+        }
+        .v4-mom-unit { font-size: 0.68rem; font-weight: 700; color: var(--v4-muted); }
+
+        /* ---------- 毎日のチェックポイント tip ---------- */
+        .v4-tipbar {
+            display: flex; align-items: flex-start; gap: 10px;
+            background: var(--v4-warn-soft);
+            border: 1px solid #f5e2bd;
+            border-radius: 14px;
+            padding: 0.8rem 1rem;
+            margin-bottom: 1.25rem;
+            font-size: 0.86rem;
+            color: #7a5200;
+            line-height: 1.7;
+        }
+        .v4-tipbar .v4-tipbar-ic {
+            flex-shrink: 0; width: 26px; height: 26px; border-radius: 8px;
+            background: #f7c64b; color: #5a3d00;
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+        .v4-tipbar b { color: #5a3d00; }
+
+        /* ---------- Compare drawer polish ---------- */
+        .compare-drawer { border-radius: 20px 0 0 20px; }
+        .cd-header { background: linear-gradient(110deg, #211d54, #4338ca); }
+
+        /* ---------- KPI(評価)カードをやさしいスタットカードに ---------- */
+        .solid-card[data-kpi-card] { border-radius: 16px; }
+        .solid-card[data-kpi-card] .metric-value { font-size: 2.5rem; }
+
+        /* ---------- 1〜5 セクションの境界（シンプルに1本線で区切る） ---------- */
+        .analysis-group {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-top: 2rem;
+        }
+        /* 項目の始まりを示す、控えめな1本の区切り線 */
+        .analysis-group::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            border-top: 1px solid #d3d8ec;
+        }
+        /* タブ直後の最初の項目には線を出さない */
+        #tab-post-release > .v4-order-1::before,
+        #pre-sec-momentum::before { display: none; }
+        .analysis-group > .section-header-row { margin-bottom: 0.85rem; }
+        .analysis-group > .section-desc { margin-bottom: 1.25rem; }
+
+        /* ---------- セクション並び替え (DOMは触らず order で宣伝担当向けの順に) ---------- */
+        #tab-post-release.tab-content.active { display: flex; flex-direction: column; }
+        #tab-post-release > .v4-order-1 { order: 1; }  /* 作品の評価 */
+        #tab-post-release > .v4-order-2 { order: 2; }  /* 観客の生の声 */
+        #tab-post-release > .v4-order-3 { order: 3; }  /* 宣伝・集客の効果 */
+        #tab-post-release > .v4-order-4 { order: 4; }  /* どんな人が観た？ */
+        #tab-post-release > .v4-order-5 { order: 5; }  /* ポテンシャル診断 */
+
+        /* アンカー位置がヘッダーに隠れないように */
+        .analysis-group[id] { scroll-margin-top: 132px; }
+
+        /* =======================================================================
+           ✦ 回答者バイアス補正カード（試験導入） ✦
+           KARTE「観たい層」性年代分布を標準集団とした事後層化ウェイトの実装イメージ。
+           ======================================================================= */
+        .v4-bias-card {
+            margin-top: 4px;
+            padding: 20px 22px;
+            border-radius: var(--v4-radius);
+            border: 1px solid #d9def0;
+            background:
+                linear-gradient(180deg, #fbfcff 0%, #f4f6fe 100%);
+            box-shadow: var(--v4-shadow-sm);
+            position: relative;
+        }
+        .v4-bias-card::before {
+            content: "";
+            position: absolute;
+            left: 0; top: 14px; bottom: 14px;
+            width: 4px; border-radius: 4px;
+            background: linear-gradient(180deg, var(--v4-brand), #8b8bf2);
+        }
+        .v4-bias-head {
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 12px; margin-bottom: 6px;
+        }
+        .v4-bias-title {
+            display: flex; align-items: center; gap: 8px;
+            font-weight: 800; font-size: 1.02rem; color: var(--v4-ink);
+        }
+        .v4-bias-title i { width: 18px; height: 18px; color: var(--v4-brand); }
+        .v4-bias-beta {
+            font-size: .64rem; font-weight: 800; letter-spacing: .04em;
+            color: var(--v4-brand-deep); background: var(--v4-brand-soft);
+            border: 1px solid #d4d6fb; border-radius: 999px;
+            padding: 2px 9px;
+        }
+        .v4-bias-toggle {
+            display: inline-flex; background: #eceffb; border: 1px solid #dadff2;
+            border-radius: 999px; padding: 3px;
+        }
+        .v4-bias-toggle button {
+            border: none; background: transparent; cursor: pointer;
+            font-size: .76rem; font-weight: 700; color: var(--v4-ink-soft);
+            padding: 5px 14px; border-radius: 999px; transition: all .15s ease;
+            white-space: nowrap;
+        }
+        .v4-bias-toggle button.active {
+            background: #fff; color: var(--v4-brand-deep);
+            box-shadow: 0 1px 4px -1px rgba(40,44,95,.25);
+        }
+        .v4-bias-desc {
+            font-size: .82rem; color: var(--v4-ink-soft); line-height: 1.6;
+            margin: 4px 0 14px;
+        }
+        .v4-bias-desc b { color: var(--v4-ink); }
+        .v4-bias-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+        }
+        @media (max-width: 720px) { .v4-bias-grid { grid-template-columns: repeat(2, 1fr); } }
+        .v4-bias-kpi {
+            background: #fff; border: 1px solid var(--v4-line);
+            border-radius: var(--v4-radius-sm); padding: 12px 14px;
+        }
+        .v4-bias-kpi-label { font-size: .72rem; font-weight: 700; color: var(--v4-muted); margin-bottom: 4px; }
+        .v4-bias-kpi-val {
+            font-size: 1.55rem; font-weight: 800; color: var(--v4-ink);
+            line-height: 1.1; display: flex; align-items: baseline; gap: 5px;
+        }
+        .v4-bias-kpi-unit { font-size: .72rem; font-weight: 700; color: var(--v4-muted); }
+        .v4-bias-delta { font-size: .72rem; font-weight: 800; padding: 1px 7px; border-radius: 999px; margin-left: auto; }
+        .v4-bias-delta.pos { color: var(--v4-good); background: var(--v4-good-soft); }
+        .v4-bias-delta.neg { color: var(--v4-bad); background: var(--v4-bad-soft); }
+        .v4-bias-delta.neu { color: var(--v4-muted); background: var(--v4-line-soft); }
+        .v4-bias-kpi-sub { font-size: .68rem; color: var(--v4-muted); margin-top: 6px; }
+        .v4-bias-foot {
+            display: flex; align-items: center; flex-wrap: wrap; gap: 10px 16px;
+            margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--v4-line);
+        }
+        .v4-bias-ess { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .v4-bias-ess-item { font-size: .78rem; color: var(--v4-ink-soft); }
+        .v4-bias-ess-item b { color: var(--v4-ink); font-weight: 800; }
+        .v4-bias-ess-arrow { color: var(--v4-muted); font-weight: 800; }
+        .v4-bias-ess-deff {
+            font-size: .7rem; font-weight: 700; color: var(--v4-warn);
+            background: var(--v4-warn-soft); border-radius: 999px; padding: 2px 9px;
+        }
+        .v4-bias-weights { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+        .v4-bias-weights-cap { font-size: .68rem; color: var(--v4-muted); margin-right: 2px; }
+        .v4-bias-wchip {
+            font-size: .68rem; font-weight: 700; border-radius: 999px;
+            padding: 2px 8px; border: 1px solid var(--v4-line);
+            color: var(--v4-ink-soft); background: #fff;
+        }
+        .v4-bias-wchip.up { color: var(--v4-bad); border-color: #f4cfca; background: var(--v4-bad-soft); }
+        .v4-bias-wchip.down { color: var(--v4-brand-deep); border-color: #d4d6fb; background: var(--v4-brand-soft); }
+        .v4-bias-note { font-size: .68rem; color: var(--v4-muted); line-height: 1.6; margin-top: 12px; }
+        .v4-bias-empty { font-size: .82rem; color: var(--v4-muted); padding: 10px 0; }
+
+        /* ---------- responsive tweaks ---------- */
+        @media (max-width: 640px) {
+            body { padding-top: 118px; }
+            .weekly-page-title { font-size: 1.12rem; }
+            .icon-box { width: 2.3rem; height: 2.3rem; }
+        }
     </style>
 </head>
 <body>
@@ -1777,10 +1813,10 @@
     <div class="header-fixed">
         <header class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between gap-4 min-w-0">
             <div class="flex items-center gap-3 flex-shrink-0">
-                <i data-lucide="film" class="w-5 h-5 text-violet-400 flex-shrink-0"></i>
+                <i data-lucide="clapperboard" class="w-5 h-5 text-violet-300 flex-shrink-0"></i>
                 <div class="font-bold text-white tracking-widest text-lg">CREW</div>
-                <div class="h-4 w-[1px] bg-slate-600 mx-2"></div>
-                <div class="text-[11px] text-slate-200 font-bold hidden md:block">作品分析 <span class="text-violet-300">/ Cockpit v2</span></div>
+                <div class="h-4 w-[1px] bg-white/25 mx-2"></div>
+                <div class="text-[11px] text-violet-100 font-bold hidden md:block">作品分析ダッシュボード</div>
             </div>
 
             <div class="flex items-center gap-3 flex-shrink-0">
@@ -1822,46 +1858,6 @@
             </div>
         </header>
         <div style="height:3px;width:100%;background:linear-gradient(90deg,#1e293b 0%,#4338ca 100%);"></div>
-
-        <!-- v2: Headline Band (Realtime Cockpit Overview) -->
-        <div class="headline-band" id="headlineBand">
-            <div class="headline-band-inner">
-                <div class="hb-cell" id="hb-cell-phase">
-                    <div class="hb-icon" id="hb-phase-icon"><i data-lucide="calendar-clock" class="w-4 h-4"></i></div>
-                    <div>
-                        <div class="hb-label" id="hb-phase-label">公開まで</div>
-                        <div class="hb-value" id="hb-phase-value">-- 日</div>
-                        <div class="hb-sub" id="hb-phase-sub">公開日: --</div>
-                    </div>
-                </div>
-                <div class="hb-cell" id="hb-cell-goal">
-                    <div class="hb-icon hb-good"><i data-lucide="target" class="w-4 h-4"></i></div>
-                    <div style="min-width:120px;">
-                        <div class="hb-label">目標到達確率</div>
-                        <div class="hb-value" id="hb-goal-value">--%</div>
-                        <div class="hb-progress-track"><div class="hb-progress-fill" id="hb-goal-fill" style="width:0%"></div></div>
-                    </div>
-                </div>
-                <div class="hb-cell hb-flex" id="hb-cell-anomaly">
-                    <div class="hb-anomaly" id="hb-anomaly-box">
-                        <div class="hb-icon hb-warn" style="background-color:rgba(245, 158, 11, 0.25);"><i data-lucide="bell-ring" class="w-4 h-4"></i></div>
-                        <div style="min-width:0;flex:1;">
-                            <div class="hb-label">アラート (最新週)</div>
-                            <div class="hb-anomaly-list" id="hb-anomaly-list">読込中...</div>
-                        </div>
-                        <div class="hb-anomaly-count" id="hb-anomaly-count">0</div>
-                    </div>
-                </div>
-                <div class="hb-cell" id="hb-cell-updated">
-                    <div class="hb-icon"><i data-lucide="refresh-cw" class="w-4 h-4"></i></div>
-                    <div>
-                        <div class="hb-label">最終更新</div>
-                        <div class="hb-value" id="hb-updated-value" style="font-size:13px;">--</div>
-                        <div class="hb-sub" id="hb-updated-sub">--</div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <div class="sub-nav">
             <div class="max-w-7xl mx-auto timeline-wrapper">
@@ -1906,135 +1902,6 @@
     <!-- Main Content -->
     <!-- Removed 'space-y-8' to prevent margin offset on the second tab -->
     <main class="max-w-7xl mx-auto px-4 pt-4 pb-8">
-        <!-- v2: 今週の打ち手 (Rule Engine Action Cards) -->
-        <section class="action-cards-section" id="actionCardsSection">
-            <div class="action-cards-header">
-                <div class="action-cards-title">
-                    <span class="ac-icon"><i data-lucide="zap" class="w-4 h-4"></i></span>
-                    <span>今週の打ち手</span>
-                    <span class="action-cards-title-sub" id="actionCardsSub">ルールエンジンによる自動推奨</span>
-                </div>
-                <div class="card-toolbar">
-                    <span style="font-size:10px;color:#94a3b8;">並び順</span>
-                    <select id="actionSortSelect" class="text-[11px] border border-slate-200 rounded px-1.5 py-0.5 font-bold text-slate-700 focus:outline-none" onchange="renderActionCards()">
-                        <option value="severity">緊急度順</option>
-                        <option value="rule">ルールID順</option>
-                        <option value="phase">フェーズ順</option>
-                    </select>
-                </div>
-            </div>
-            <div class="action-cards-grid" id="actionCardsGrid">
-                <div class="ac-empty">読み込み中...</div>
-            </div>
-        </section>
-
-        <!-- Global Summary (crew_dashboard_v4 weekly-page と同仕様) -->
-        <section class="page-summary-panel mb-6">
-            <h1 class="weekly-page-title">サマリー</h1>
-            <p class="weekly-intro">タイムラインで選択中の週における、作品評価のサマリーです。Target / VS の主要KPIと観客反応の概要を確認できます。</p>
-
-            <!-- 公開前サマリー（タイムラインが公開前の週のとき表示） -->
-            <div id="summary_layout_pre" class="summary-post-stack hidden">
-                <div class="weekly-hero">
-                    <div class="weekly-hero-inner">
-                        <div>
-                            <span id="page_summary_period_pre" class="weekly-hero-period">--</span>
-                            <div class="weekly-hero-cvr-wrap">
-                                <span id="page_summary_metric_label" class="weekly-hero-cvr-label is-emphasis">鑑賞意向</span>
-                                <span class="weekly-hero-cvr-value num-font is-emphasis"><span id="page_summary_metric_value">--</span><span id="page_summary_metric_unit" class="unit">%</span></span>
-                                <p class="weekly-hero-cvr-formula">
-                                    <span><b>KARTE 鑑賞意向調査</b>で「観に行きたい (Top2)」と回答した割合 / 全国の映画ファン回答者ベース</span>
-                                </p>
-                                <div class="weekly-hero-cvr-comp">
-                                    <span class="comp-label">COMP</span>
-                                    <span class="comp-value"><span id="page_summary_metric_comp">--</span><span class="comp-unit">%</span></span>
-                                    <span id="page_summary_metric_diff" class="comp-diff neu">--</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="min-w-0">
-                            <p class="weekly-hero-point">今週のポイント</p>
-                            <p id="page_summary_text" class="weekly-hero-highlight">データを読み込み中です...</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="summary-post-kpi-row">
-                    <div class="summary-donut-card">
-                        <div class="summary-donut-title">鑑賞頻度の構成</div>
-                        <div class="summary-donut-canvas">
-                            <canvas id="page_summary_pre_freq_donut"></canvas>
-                        </div>
-                    </div>
-                    <div class="summary-donut-card">
-                        <div class="summary-donut-title">主要ターゲット（性別 × 年代）</div>
-                        <div class="summary-donut-canvas">
-                            <canvas id="page_summary_pre_demo_donut"></canvas>
-                        </div>
-                        <p id="page_summary_pre_demo_top" class="summary-donut-caption">主要ターゲット: --</p>
-                    </div>
-                    <div class="summary-donut-card">
-                        <div class="summary-donut-title">主要な認知経路（TOP5）</div>
-                        <div class="summary-donut-canvas summary-trend-canvas-mini">
-                            <canvas id="page_summary_pre_source_chart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 公開後サマリー -->
-            <div id="summary_layout_post" class="summary-post-stack">
-                <div class="weekly-hero">
-                    <div class="weekly-hero-inner">
-                        <div>
-                            <span id="page_summary_period_post" class="weekly-hero-period">--</span>
-                            <div class="weekly-hero-cvr-wrap">
-                                <span class="weekly-hero-cvr-label is-emphasis">観客反応指数 (100点)</span>
-                                <span class="weekly-hero-cvr-value num-font is-emphasis"><span id="summary_composite_value">--</span><span class="unit">点</span></span>
-                                <p class="weekly-hero-cvr-formula">
-                                    <span><b>推奨度 (NPS)</b> × <b>満足度</b> × <b>再鑑賞意向</b> の3指標を100点換算し平均</span>
-                                </p>
-                                <div class="weekly-hero-cvr-comp">
-                                    <span class="comp-label">COMP</span>
-                                    <span class="comp-value"><span id="summary_composite_comp">--</span><span class="comp-unit">点</span></span>
-                                    <span id="summary_composite_diff" class="comp-diff neu">--</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="min-w-0">
-                            <p class="weekly-hero-point">今週のポイント</p>
-                            <p id="page_summary_text_post" class="weekly-hero-highlight">データを読み込み中です...</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="summary-post-kpi-row">
-                    <div class="summary-donut-card">
-                        <div class="summary-donut-title">鑑賞頻度の構成</div>
-                        <div class="summary-donut-canvas">
-                            <canvas id="page_summary_freq_donut"></canvas>
-                        </div>
-                    </div>
-                    <div class="summary-donut-card">
-                        <div class="summary-donut-title">具体的な感想のセンチメント</div>
-                        <div class="summary-donut-canvas">
-                            <canvas id="page_summary_sentiment_donut"></canvas>
-                        </div>
-                    </div>
-                    <div class="summary-donut-card">
-                        <div class="summary-donut-title">同伴鑑賞の構成</div>
-                        <div class="summary-donut-canvas">
-                            <canvas id="page_summary_companion_donut"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="panel-data-source page-summary-ds mt-3">
-                <p class="panel-ds-line"><span class="panel-ds-label">データソース：</span><span class="panel-ds-body">サマリーはタイムライン選択週・Target／VS のデータセットに基づく集計。公開前はKARTE等、公開後はCASTアンケート（感想テキストのセンチメント分析含む）。詳細は各チャート直下の「データソース」を参照。</span></p>
-            </div>
-        </section>
-
         <!-- TAB 1: PRE-RELEASE -->
         <div id="tab-pre-release" class="tab-content active">
             <div id="pre-release-container"></div>
@@ -2043,19 +1910,33 @@
         <!-- TAB 2: POST-RELEASE -->
         <div id="tab-post-release" class="tab-content">
 
-            <!-- Group 1: Initial Reaction -->
-            <section class="analysis-group" data-insight-ref="post-group-1">
+            <div style="order:0">
+                <div class="v4-tipbar">
+                    <span class="v4-tipbar-ic"><i data-lucide="check" class="w-4 h-4"></i></span>
+                    <span><b>公開後の毎日のルーティン：</b> ①評価サマリーで作品の調子を確認 → ②生の声で宣伝に使える反応を拾う → ③宣伝・集客の効果で次の打ち手を決める。下のボタンで各セクションへジャンプできます。</span>
+                </div>
+                <nav class="v4-secnav">
+                    <a href="#post-sec-eval"><span class="v4-secnav-dot" style="background:#f97316"></span>作品の評価</a>
+                    <a href="#post-sec-voice"><span class="v4-secnav-dot" style="background:#6366f1"></span>観客の生の声</a>
+                    <a href="#post-sec-marketing"><span class="v4-secnav-dot" style="background:#ec4899"></span>宣伝・集客の効果</a>
+                    <a href="#post-sec-profile"><span class="v4-secnav-dot" style="background:#3b82f6"></span>どんな人が観た？</a>
+                    <a href="#post-sec-potential"><span class="v4-secnav-dot" style="background:#8b5cf6"></span>ポテンシャル診断</a>
+                </nav>
+            </div>
+
+            <!-- Group 1: 作品の評価サマリー -->
+            <section id="post-sec-eval" class="analysis-group v4-order-1" data-insight-ref="post-group-1">
                 <div class="section-header-row">
                     <div class="section-title">
                         <div class="icon-box bg-orange-100 text-orange-600"><i data-lucide="flame"></i></div>
                         <div>
-                            1. 作品評価・熱量 (Evaluation & Heat)
+                            1. 作品の評価サマリー
                             <span class="source-badge source-badge-cast ml-2">CAST</span>
                         </div>
                     </div>
                 </div>
                 <div class="section-desc">
-                    作品の受容性評価。ターゲット数値(Target)と、比較対象(VS)との乖離を一目で把握する。
+                    <b>毎日まず見る3指標。</b>「おすすめしたい(NPS)」「満足度」「また観たい」を業界平均(VS)と比べ、作品の評価が上向きか下向きかをチェックします。
                 </div>
 
                 <!-- KPI Cards Grid -->
@@ -2072,7 +1953,6 @@
                             </div>
                             <div class="flex items-center gap-3 text-sm" id="single_comp_nps"><span class="text-slate-500">COMP: <span id="comp_val_nps" class="font-bold text-slate-700">--</span></span><span id="diff_nps_pill" class="kpi-diff-pill diff-neu">--</span></div>
                             <div id="comp_list_nps" class="kpi-comp-list hidden"></div>
-                            <div class="kpi-z-row" id="kpi_z_nps"></div>
                         </div>
                     </div>
                     <!-- Satisfaction Card -->
@@ -2087,7 +1967,6 @@
                             </div>
                             <div class="flex items-center gap-3 text-sm" id="single_comp_sat"><span class="text-slate-500">COMP: <span id="comp_val_sat" class="font-bold text-slate-700">--</span></span><span id="diff_sat_pill" class="kpi-diff-pill diff-neu">--</span></div>
                             <div id="comp_list_sat" class="kpi-comp-list hidden"></div>
-                            <div class="kpi-z-row" id="kpi_z_sat"></div>
                         </div>
                     </div>
                     <!-- Rewatch Card -->
@@ -2102,23 +1981,47 @@
                             </div>
                             <div class="flex items-center gap-3 text-sm" id="single_comp_rewatch"><span class="text-slate-500">COMP: <span id="comp_val_rewatch" class="font-bold text-slate-700">--</span></span><span id="diff_rewatch_pill" class="kpi-diff-pill diff-neu">--</span></div>
                             <div id="comp_list_rewatch" class="kpi-comp-list hidden"></div>
-                            <div class="kpi-z-row" id="kpi_z_rewatch"></div>
                         </div>
                     </div>
                 </div>
 
+                <!-- 回答者バイアス補正カード（試験導入） -->
+                <div class="v4-bias-card" id="v4-bias-card">
+                    <div class="v4-bias-head">
+                        <div class="v4-bias-title">
+                            <i data-lucide="scale"></i>回答者バイアス補正
+                            <span class="v4-bias-beta">試験導入 β</span>
+                        </div>
+                        <div class="v4-bias-toggle" id="v4-bias-toggle">
+                            <button type="button" data-mode="raw" onclick="v4SetBiasMode('raw')">補正前（実回答）</button>
+                            <button type="button" data-mode="std" onclick="v4SetBiasMode('std')">補正後（KARTE標準化）</button>
+                        </div>
+                    </div>
+                    <p class="v4-bias-desc">
+                        アンケート回答者は<b>シニア層・コア層が多めに偏りがち</b>です。KARTEの「観たい層」性年代分布を<b>標準集団</b>とし、各セルに<b>事後層化ウェイト</b>を掛けて構成のゆがみを補正した試算値を表示します。
+                    </p>
+                    <div class="v4-bias-grid" id="v4-bias-grid"></div>
+                    <div class="v4-bias-foot">
+                        <div class="v4-bias-ess" id="v4-bias-ess"></div>
+                        <div class="v4-bias-weights" id="v4-bias-weights"></div>
+                    </div>
+                    <p class="v4-bias-note">
+                        ※ 標準集団＝KARTE実測の鑑賞者構成（推定）。回答者はシニア層が過大表現されやすいため、KARTEが捉えた若年・ライト層への広がりを反映して標準分布を推定。各セルの重み＝標準比/回答比（0.33〜3.0でクリップ、回答構成の平均が1になるよう正規化）。有効サンプル(ESS)＝N/Σ(構成比×重み²)。KPIの補正値は「年代で評価傾向に一定の差がある」という前提に基づく<b>簡易試算</b>で、実値は別途検証が必要です。
+                    </p>
+                </div>
+
             </section>
 
-            <!-- Group 2: Specific Feedback -->
-             <section class="analysis-group" data-insight-ref="post-main">
+            <!-- Group 2: 観客の生の声 -->
+             <section id="post-sec-voice" class="analysis-group v4-order-2" data-insight-ref="post-main">
                 <div class="section-header-row">
                     <div class="section-title">
                         <div class="icon-box bg-indigo-100 text-indigo-600"><i data-lucide="message-circle"></i></div>
-                        2. 具体的な感想 (Specific Feedback) <span class="source-badge source-badge-cast ml-2">CAST</span>
+                        2. 観客の生の声 <span class="source-badge source-badge-cast ml-2">CAST</span>
                     </div>
                 </div>
                 <div class="section-desc">
-                    観客の生の声（定性情報）から、具体的な評価ポイントを探る。
+                    <b>SNS素材・コピーのヒント。</b>感想がポジティブかネガティブか、どんな言葉が刺さっているかを確認し、宣伝に使える「良い声」を毎日拾います。
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                     <div class="solid-card">
@@ -2148,17 +2051,17 @@
                 </div>
             </section>
 
-            <!-- Group 3: Box Office Potential -->
-            <section class="analysis-group" data-insight-ref="post-group-2">
+            <!-- Group 5: 興行ポテンシャル診断 (深掘り) -->
+            <section id="post-sec-potential" class="analysis-group v4-order-5" data-insight-ref="post-group-2">
                 <div class="section-header-row">
-                    <div class="section-title"><div class="icon-box bg-violet-100 text-violet-600"><i data-lucide="radar"></i></div>3. 興行ポテンシャル診断 (4次元分析) <span class="source-badge source-badge-cast ml-2">CAST</span></div>
+                    <div class="section-title"><div class="icon-box bg-violet-100 text-violet-600"><i data-lucide="radar"></i></div>5. 興行ポテンシャル診断（深掘り） <span class="source-badge source-badge-cast ml-2">CAST</span></div>
                 </div>
-                <div class="section-desc">「満足度 x NPS」に「熱量（バブルの大きさ）」と「コアファン比率」を加味した総合診断。</div>
+                <div class="section-desc"><b>じっくり分析したい日に。</b>「作品の質（満足度）」×「一般層への広がり（ライト＋新規層の比率）」で4象限に分類。質と広がりは連動しにくいので、社会現象型・カルト型・話題先行型・苦戦の違いがはっきり見えます。バブルの大きさは口コミ熱量です。</div>
 
                 <!-- Expanded Full Width Chart Area -->
                 <div class="solid-card mb-6">
                     <div class="card-header">
-                        <div><span>ヒットポテンシャル診断マップ</span><p class="card-header-desc">満足度×NPS×熱量・コア層の可視化</p></div>
+                        <div><span>ヒットポテンシャル診断マップ</span><p class="card-header-desc">作品の質 × 一般層への広がり（バブル＝熱量）</p></div>
                         <div class="flex gap-4 text-[10px] text-slate-500">
                             <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-indigo-600"></span>Target</span>
                             <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-400"></span>Comp</span>
@@ -2177,10 +2080,11 @@
                                 <div class="p-3 bg-slate-50 rounded border border-slate-200">
                                     <h5 class="font-bold text-xs text-slate-500 mb-2">指標解説</h5>
                                     <ul class="text-[10px] text-slate-400 space-y-1">
-                                        <li>・X軸: 満足度 (Quality)</li>
-                                        <li>・Y軸: 推奨度 (NPS)</li>
+                                        <li>・X軸: 満足度＝作品の質 (Quality)</li>
+                                        <li>・Y軸: 一般層への広がり (Reach)</li>
+                                        <li>　＝ライト＋新規層の比率(%)</li>
                                         <li>・円の大きさ: 熱量 (感想文字数)</li>
-                                        <li>・象限: 色でゾーンを分類</li>
+                                        <li>・推奨度(NPS)はツールチップで確認</li>
                                     </ul>
                                 </div>
                             </div>
@@ -2190,7 +2094,7 @@
 
                 <!-- Other Potential Metrics -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <div class="solid-card"><div class="card-header"><div><span>ポテンシャル (6軸)</span><p class="card-header-desc">満足度・推奨度・口コミ等の6軸評価</p></div></div><div class="card-body" style="min-height:300px;"><div class="chart-container h-64"><canvas id="postPotentialRadar"></canvas></div></div></div>
+                    <div class="solid-card"><div class="card-header"><div><span>ポテンシャル (5軸)</span><p class="card-header-desc">満足度・推奨度・再鑑賞・ライト層・熱量の5軸評価</p></div></div><div class="card-body" style="min-height:300px;"><div class="chart-container h-64"><canvas id="postPotentialRadar"></canvas></div></div></div>
                     <div class="solid-card"><div class="card-header"><div><span>口コミ熱量 (文字数分布)</span><p class="card-header-desc">自由記述の文字数分布・熱量</p></div></div><div class="card-body" style="min-height:300px;"><div class="chart-container h-64"><canvas id="postHeatChart"></canvas></div></div></div>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -2199,10 +2103,10 @@
                 </div>
             </section>
 
-            <!-- Group 4: Marketing Analysis -->
-            <section class="analysis-group" data-insight-ref="post-marketing">
-                <div class="section-header-row"><div class="section-title"><div class="icon-box bg-pink-100 text-pink-600"><i data-lucide="megaphone"></i></div>4. マーケティング分析 <span class="source-badge source-badge-cast ml-2">CAST</span></div></div>
-                <div class="section-desc">決定時期、購入経路、情報源、鑑賞理由から、プロモーション効果を検証する。ガイエ広告出稿データとの突合で投資効率を可視化。</div>
+            <!-- Group 3: 宣伝・集客の効果 -->
+            <section id="post-sec-marketing" class="analysis-group v4-order-3" data-insight-ref="post-marketing">
+                <div class="section-header-row"><div class="section-title"><div class="icon-box bg-pink-100 text-pink-600"><i data-lucide="megaphone"></i></div>3. 宣伝・集客の効果 <span class="source-badge source-badge-cast ml-2">CAST</span></div></div>
+                <div class="section-desc"><b>宣伝担当の主戦場。</b>観客が「いつ・どこで作品を知り・なぜ観たか」を確認し、効いている経路と訴求に予算とクリエイティブを寄せます。</div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                     <div class="solid-card"><div class="card-header"><div><span>決定時期</span><p class="card-header-desc">観に行くことをいつ決めたか</p></div></div><div class="card-body" style="min-height:200px;"><div class="chart-container h-40"><canvas id="postTimingChart"></canvas></div></div></div>
@@ -2214,10 +2118,10 @@
                 </div>
             </section>
 
-            <!-- Group 5: Viewer Profile Analysis -->
-            <section class="analysis-group" data-insight-ref="post-main">
-                <div class="section-header-row"><div class="section-title"><div class="icon-box bg-blue-100 text-blue-600"><i data-lucide="users"></i></div>5. 鑑賞者プロファイル分析 <span class="source-badge source-badge-cast ml-2">CAST</span></div></div>
-                <div class="section-desc">性年代、頻度、同行者、鑑賞日時、利用劇場から、具体的なターゲット像を可視化する。</div>
+            <!-- Group 4: どんな人が観た？ -->
+            <section id="post-sec-profile" class="analysis-group v4-order-4" data-insight-ref="post-main">
+                <div class="section-header-row"><div class="section-title"><div class="icon-box bg-blue-100 text-blue-600"><i data-lucide="users"></i></div>4. どんな人が観た？ <span class="source-badge source-badge-cast ml-2">CAST</span></div></div>
+                <div class="section-desc"><b>ターゲット像の答え合わせ。</b>性年代・頻度・同行者・曜日や時間帯・劇場から、実際に来ている客層を把握し、宣伝の狙いとズレていないか確認します。</div>
                 <div class="solid-card mb-6">
                     <div class="card-header">
                         <div><span>性年代別構成比</span><p class="card-header-desc">男女・年代別の回答者構成</p></div>
@@ -2251,7 +2155,6 @@
         Chart.defaults.font.family = "'Noto Sans JP', sans-serif";
         Chart.defaults.color = '#64748b';
         Chart.defaults.scale.grid.color = '#f1f5f9';
-        try { if (window['chartjs-plugin-annotation']) Chart.register(window['chartjs-plugin-annotation']); } catch (e) { /* annotation plugin optional */ }
 
         // ===== 比較対象（複数選択）状態 =====
         // 案B: 右スライドインドロワーで設定。複数選択時は「個別表示」(各 Comp を別系列で並べる) または
@@ -2312,7 +2215,7 @@
                     sentimentRatio: [75, 10, 15],
                     keywords: ['最高', '神作', '号泣', 'ありがとう', '作画', '完結', 'IMAX', 'フィナーレ'],
                     richComments: genComments('movie1'),
-                    radar: [90, 72, 85, 30, 80, 90],
+                    radar: [90, 72, 85, 30, 90],
                     demo_m: [5,15,25,20,5,0], demo_f: [2,5,8,3,1,1], repeatCount: [20,25,20,15,20], format: [55,25,10,8,2], source: genSource(1), motivation: [10,5,15,40,10,15,5],
                     frequency: [40,30,20,10], // High core fans (freq > 12)
                     companion: [60,20,5,15],
@@ -2338,6 +2241,7 @@
                     nps:[65,68,70,72,71,72,72,71,70,68,68,67,65,65,64,64],
                     rewatch:[35,40,42,45,45,46,45,44,43,42,42,41,40,40,39,39],
                     sat:[8.5, 8.8, 9.0, 9.0, 8.9, 9.0, 9.0, 8.9, 8.8, 8.7, 8.7, 8.6, 8.5, 8.5, 8.4, 8.4],
+                    sentimentPos:[70,73,76,78,77,78,77,76,76,75,75,74,75,75,74,75],
                     n:[2000, 3500, 5500, 7500, 9500, 11000, 12450, 13500, 14500, 15200, 15800, 16300, 16700, 17000, 17200, 17400]
                 },
                 gaie: {
@@ -2364,7 +2268,7 @@
                     sentimentRatio: [60, 25, 15],
                     keywords: ['尊い', 'かっこいい', '可愛い', '切ない', 'デート', '雰囲気', '音楽'],
                     richComments: genComments('movie2'),
-                    radar: [78, 58, 40, 90, 20, 60], demo_m:[2,5,5,3,1,0], demo_f:[15,35,20,10,2,2], repeatCount: [90,8,1,1,0], format: [95,3,0,2,0], source: genSource(2), motivation: [50,20,10,5,0,10,5],
+                    radar: [78, 58, 40, 90, 60], demo_m:[2,5,5,3,1,0], demo_f:[15,35,20,10,2,2], repeatCount: [90,8,1,1,0], format: [95,3,0,2,0], source: genSource(2), motivation: [50,20,10,5,0,10,5],
                     frequency: [5,15,40,40], // Low core fans
                     companion: [10,60,25,5],
                     profile: { day: [12, 10, 15, 12, 20, 18, 13], time: [5, 25, 40, 30], theater: [10, 15, 8, 12, 5] },
@@ -2392,6 +2296,7 @@
                     nps:[50,55,56,58,57,58,58,57,56,55,55,54,54,53,53,53],
                     rewatch:[25,28,30,30,29,30,30,29,28,27,27,26,26,25,25,25],
                     sat:[7.5, 7.6, 7.7, 7.8, 7.7, 7.8, 7.8, 7.7, 7.6, 7.5, 7.5, 7.4, 7.4, 7.3, 7.3, 7.3],
+                    sentimentPos:[66,64,63,62,61,61,60,60,59,59,58,58,57,57,56,56],
                     n:[1500, 3000, 4500, 5800, 6800, 7800, 8320, 8700, 9000, 9200, 9400, 9500, 9600, 9700, 9800, 9900]
                 },
                 gaie: {
@@ -2418,7 +2323,7 @@
                     sentimentRatio: [80, 5, 15],
                     keywords: ['迫力', 'スゴイ', 'アクション', 'ハラハラ', 'IMAX', '筋肉', '爆発'],
                     richComments: genComments('movie3'),
-                    radar: [90, 65, 70, 40, 75, 85], demo_m:[10,20,20,10,5,0], demo_f:[5,10,10,5,3,2], repeatCount: [70,20,5,3,2], format: [35,30,15,15,5], source: genSource(0), motivation: [15,5,5,10,30,30,5],
+                    radar: [90, 65, 70, 40, 85], demo_m:[10,20,20,10,5,0], demo_f:[5,10,10,5,3,2], repeatCount: [70,20,5,3,2], format: [35,30,15,15,5], source: genSource(0), motivation: [15,5,5,10,30,30,5],
                     frequency: [20,30,30,20], // Mid core
                     companion: [30,30,30,10],
                     profile: { day: [8, 8, 10, 10, 15, 25, 24], time: [15, 35, 30, 20], theater: [12, 10, 15, 8, 8] },
@@ -2446,6 +2351,7 @@
                     nps:[60,63,65,65,64,65,65,66,66,67,67,67,67,67,67,67],
                     rewatch:[35,38,40,40,39,40,40,41,41,42,42,42,42,42,42,42],
                     sat:[8.8, 8.9, 9.0, 9.0, 9.0, 9.0, 9.0, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1],
+                    sentimentPos:[76,78,80,81,80,81,81,82,82,82,81,81,80,80,80,80],
                     n:[3000, 6000, 9000, 11000, 13000, 14500, 15600, 16500, 17200, 17800, 18200, 18500, 18700, 18800, 18900, 19000]
                 },
                 gaie: {
@@ -2469,7 +2375,7 @@
                 name: "業界平均", n: 50000, nps: 60.0, sat: 7.6, rewatchRate: 30,
                 post: {
                     sentimentRatio: [60, 20, 20], keywords: [], richComments: [],
-                    radar: [76, 60, 50, 50, 50, 50], demo_m:[5,10,15,10,5,5], demo_f:[5,10,15,10,5,5], repeatCount: [75,15,5,3,2], format: [70,15,5,5,5], source: genSource(0), motivation: [15,10,15,15,15,20,10],
+                    radar: [76, 60, 50, 50, 50], demo_m:[5,10,15,10,5,5], demo_f:[5,10,15,10,5,5], repeatCount: [75,15,5,3,2], format: [70,15,5,5,5], source: genSource(0), motivation: [15,10,15,15,15,20,10],
                     frequency: [25,25,25,25], // Avg
                     companion: [40,30,20,10],
                     profile: { day: [12, 12, 14, 12, 15, 18, 17], time: [15, 35, 30, 20], theater: [10, 10, 10, 10, 10] },
@@ -2497,6 +2403,7 @@
                     nps:[60,60,60,60,60,60,60,60,60,60,60,60,60,60,60,60],
                     rewatch:[30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30],
                     sat:[7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6],
+                    sentimentPos:[60,60,60,60,60,60,60,60,60,60,60,60,60,60,60,60],
                     n:[5000, 10000, 15000, 20000, 25000, 30000, 35000, 38000, 40000, 42000, 43500, 44500, 45000, 45500, 45800, 46000]
                 }
             }
@@ -2508,619 +2415,6 @@
         const countIncrement = 5;
         let currentMovieComments = [];
         let currentWeek = 0;
-
-        // ============================================================
-        // v2: Marketing Meta (公開日・イベント・熱源・目標) per Movie
-        // ============================================================
-        // 公開日基準は「今＝2026/05/24 (土)」を仮定し、movie1: -2週後、movie2: -8週後、movie3: 公開済(+4週)
-        // 公開日 (ISO) と weeklyOffset (timeline 上での週Index基準。timeline は week-8〜week+8 の17週) を保持
-        const marketingMeta = {
-            "movie1": {
-                releaseDateISO: "2026-06-05",
-                releaseDateLabel: "2026/06/05 (金)",
-                releaseTimelineWeek: 8,
-                lastUpdated: "2026/05/24 09:30",
-                lastUpdatedSource: "KARTE週次配信 + GAIE速報",
-                goals: { interest: { target: 65 }, awareness: { target: 75 }, openingBoxOffice: { target: 30, unit: "億円" } },
-                events: [
-                    { week: 0, label: "ティザー公開", type: "creative" },
-                    { week: 2, label: "本予告解禁", type: "creative" },
-                    { week: 4, label: "舞台挨拶イベント", type: "pr" },
-                    { week: 6, label: "公式試写会レビュー解禁", type: "pr" },
-                    { week: 7, label: "TVスポット集中投下開始", type: "media" }
-                ],
-                heatSources: [
-                    { name: "主演キャストA", type: "cast", stock: 850, flow: 12.5, conductivity: 38, contribution: 18.5 },
-                    { name: "主演キャストB", type: "cast", stock: 620, flow: 8.2, conductivity: 28, contribution: 9.8 },
-                    { name: "原作シリーズ", type: "brand", stock: 1450, flow: 6.4, conductivity: 52, contribution: 32.1 },
-                    { name: "アニメファン", type: "tribe", stock: 980, flow: 4.1, conductivity: 22, contribution: 14.2 },
-                    { name: "SF/ロボット", type: "genre", stock: 540, flow: -1.2, conductivity: 19, contribution: 6.5 },
-                    { name: "監督", type: "cast", stock: 220, flow: 0.8, conductivity: 31, contribution: 4.2 },
-                    { name: "主題歌アーティスト", type: "cast", stock: 480, flow: 18.6, conductivity: 12, contribution: 3.1 },
-                    { name: "声優ファン", type: "tribe", stock: 360, flow: 2.5, conductivity: 17, contribution: 3.0 }
-                ],
-                similarBand: { interest: { p25: [40,42,44,46,48,50,52,55,58,60,62,64,66,68,70,72,74], p50: [48,50,52,55,57,59,61,63,65,67,69,71,73,74,75,76,77], p75: [56,58,60,62,65,67,69,71,73,75,77,79,80,81,82,83,84] } }
-            },
-            "movie2": {
-                releaseDateISO: "2026-04-17",
-                releaseDateLabel: "2026/04/17 (金)",
-                releaseTimelineWeek: 8,
-                lastUpdated: "2026/05/24 09:30",
-                lastUpdatedSource: "KARTE週次配信 + CAST出口調査",
-                goals: { interest: { target: 50 }, awareness: { target: 55 }, openingBoxOffice: { target: 8, unit: "億円" } },
-                events: [
-                    { week: 1, label: "ティザー解禁", type: "creative" },
-                    { week: 3, label: "予告編公開", type: "creative" },
-                    { week: 5, label: "原作者インタビュー特集", type: "pr" },
-                    { week: 8, label: "公開", type: "release" },
-                    { week: 11, label: "ヒット御礼舞台挨拶", type: "pr" }
-                ],
-                heatSources: [
-                    { name: "原作小説", type: "brand", stock: 720, flow: 4.5, conductivity: 42, contribution: 14.8 },
-                    { name: "主演ヒロイン", type: "cast", stock: 380, flow: 2.1, conductivity: 25, contribution: 6.5 },
-                    { name: "恋愛ジャンル", type: "genre", stock: 650, flow: -0.5, conductivity: 18, contribution: 8.2 },
-                    { name: "F1層 (20代女性)", type: "tribe", stock: 920, flow: 3.8, conductivity: 14, contribution: 7.4 },
-                    { name: "雨と切なさトライブ", type: "tribe", stock: 280, flow: 6.2, conductivity: 9, contribution: 1.8 },
-                    { name: "主題歌アーティスト", type: "cast", stock: 540, flow: 1.4, conductivity: 21, contribution: 5.1 }
-                ],
-                similarBand: { interest: { p25: [25,27,28,30,31,32,33,34,35,36,37,37,38,38,38,38,38], p50: [32,33,34,35,37,38,40,41,42,43,44,45,45,46,46,46,46], p75: [40,42,44,45,47,48,50,52,53,54,55,56,57,58,58,58,58] } }
-            },
-            "movie3": {
-                releaseDateISO: "2026-04-26",
-                releaseDateLabel: "2026/04/26 (日)",
-                releaseTimelineWeek: 8,
-                lastUpdated: "2026/05/24 09:30",
-                lastUpdatedSource: "KARTE週次配信 + CAST出口調査 + GAIE実績",
-                goals: { interest: { target: 60 }, awareness: { target: 70 }, openingBoxOffice: { target: 22, unit: "億円" } },
-                events: [
-                    { week: 0, label: "ティザー解禁", type: "creative" },
-                    { week: 2, label: "本予告解禁", type: "creative" },
-                    { week: 4, label: "プレミア試写会", type: "pr" },
-                    { week: 6, label: "TVスポット集中投下", type: "media" },
-                    { week: 8, label: "公開", type: "release" },
-                    { week: 10, label: "海外メディアレビュー解禁", type: "pr" }
-                ],
-                heatSources: [
-                    { name: "海外スターA", type: "cast", stock: 1820, flow: 9.3, conductivity: 28, contribution: 22.5 },
-                    { name: "海外スターB", type: "cast", stock: 980, flow: 5.8, conductivity: 22, contribution: 9.5 },
-                    { name: "アクション/SF", type: "genre", stock: 1120, flow: 3.2, conductivity: 25, contribution: 13.4 },
-                    { name: "シリーズブランド", type: "brand", stock: 1450, flow: 4.8, conductivity: 35, contribution: 18.2 },
-                    { name: "M2層 (30代男性)", type: "tribe", stock: 880, flow: 1.1, conductivity: 15, contribution: 5.6 },
-                    { name: "監督", type: "cast", stock: 320, flow: 0.5, conductivity: 18, contribution: 2.8 }
-                ],
-                similarBand: { interest: { p25: [30,32,34,36,38,40,42,44,46,48,50,52,53,54,55,56,57], p50: [40,42,45,48,50,52,55,57,59,61,63,65,67,68,69,70,71], p75: [50,53,56,58,61,63,66,68,70,72,74,76,78,79,80,81,82] } }
-            }
-        };
-
-        // ============================================================
-        // v2: Z-Score / Anomaly Detection / Goal Probability
-        // ============================================================
-        const ANOMALY_Z_WARN = 1.5;
-        const ANOMALY_Z_BAD = 2.0;
-
-        function _stat(arr) {
-            const valid = (arr || []).filter(v => typeof v === 'number' && isFinite(v));
-            if (!valid.length) return { mean: 0, sd: 0 };
-            const mean = valid.reduce((a, b) => a + b, 0) / valid.length;
-            const variance = valid.reduce((s, v) => s + (v - mean) ** 2, 0) / valid.length;
-            return { mean, sd: Math.sqrt(variance) };
-        }
-
-        function computeZ(latest, history) {
-            const baseline = (history || []).slice(-9, -1);
-            const { mean, sd } = _stat(baseline);
-            if (sd < 1e-6) return 0;
-            return (latest - mean) / sd;
-        }
-
-        function buildKPIBaselineSeries(movieKey) {
-            const tr = (dataSet[movieKey] && dataSet[movieKey].trends) || {};
-            return {
-                nps: tr.nps || [],
-                sat: tr.sat || [],
-                rewatch: tr.rewatch || [],
-                interest: ((dataSet[movieKey] && dataSet[movieKey].pre && dataSet[movieKey].pre.trends && dataSet[movieKey].pre.trends.interest) || [])
-            };
-        }
-
-        // 与えられた dataset から「最新週時点の各KPI Z」を返す
-        function detectAnomalies(movieKey) {
-            const tr = buildKPIBaselineSeries(movieKey);
-            const out = [];
-            const checks = [
-                { id: 'interest', label: '鑑賞意向', series: tr.interest, hi: '高すぎ', lo: '低下' },
-                { id: 'nps', label: 'NPS', series: tr.nps, hi: '急上昇', lo: '低下' },
-                { id: 'sat', label: '満足度', series: tr.sat, hi: '高評価', lo: '失望' },
-                { id: 'rewatch', label: '再鑑賞', series: tr.rewatch, hi: '高リピート', lo: '低リピート' }
-            ];
-            checks.forEach(c => {
-                if (!c.series || c.series.length < 3) return;
-                const latest = c.series[c.series.length - 1];
-                const z = computeZ(latest, c.series);
-                let severity = 'neutral';
-                if (z >= ANOMALY_Z_BAD) severity = 'good';
-                else if (z >= ANOMALY_Z_WARN) severity = 'good';
-                else if (z <= -ANOMALY_Z_BAD) severity = 'bad';
-                else if (z <= -ANOMALY_Z_WARN) severity = 'warn';
-                out.push({ id: c.id, label: c.label, latest, z, severity, hiHint: c.hi, loHint: c.lo });
-            });
-            return out;
-        }
-
-        function computeGoalProbability(movieKey) {
-            const meta = marketingMeta[movieKey];
-            if (!meta) return { p: null, label: '--' };
-            const interestTarget = meta.goals && meta.goals.interest && meta.goals.interest.target;
-            const interestSeries = (dataSet[movieKey] && dataSet[movieKey].pre && dataSet[movieKey].pre.trends && dataSet[movieKey].pre.trends.interest) || [];
-            if (!interestTarget || !interestSeries.length) return { p: null, label: '--' };
-            const latest = interestSeries[interestSeries.length - 1];
-            // 公開週まで残り週数。interest 系列は week-8 〜 公開直前(week-1) の8点想定。
-            // 最新値と過去3週成長率から線形外挿してターゲットを超える確率を簡易推定。
-            const last3 = interestSeries.slice(-3);
-            const slope = (last3[last3.length - 1] - last3[0]) / Math.max(1, last3.length - 1);
-            const weeksLeft = Math.max(1, meta.releaseTimelineWeek - currentWeek);
-            const projected = latest + slope * weeksLeft;
-            // sd ベースの信頼域 (sd * 1.0)
-            const { sd } = _stat(interestSeries);
-            const distance = (projected - interestTarget) / Math.max(0.5, sd || 1.5);
-            // ロジスティック変換
-            const p = 1 / (1 + Math.exp(-distance));
-            return { p: Math.round(p * 100), label: Math.round(p * 100) + '%', target: interestTarget, projected: Math.round(projected * 10) / 10, latest };
-        }
-
-        // ============================================================
-        // v2: Headline Band Renderer
-        // ============================================================
-        function renderHeadlineBand() {
-            const movieKey = (document.getElementById('movieSelector') || {}).value || 'movie1';
-            const meta = marketingMeta[movieKey];
-            if (!meta) return;
-
-            // 1) フェーズ (公開まで N 日 / 公開後 N 日)
-            const today = new Date();
-            const release = new Date(meta.releaseDateISO);
-            const diffDays = Math.round((release - today) / 86400000);
-            const phaseEl = document.getElementById('hb-phase-value');
-            const phaseLabel = document.getElementById('hb-phase-label');
-            const phaseSub = document.getElementById('hb-phase-sub');
-            const phaseIcon = document.getElementById('hb-phase-icon');
-            if (diffDays > 0) {
-                if (phaseLabel) phaseLabel.textContent = '公開まで';
-                if (phaseEl) phaseEl.textContent = `${diffDays} 日`;
-                if (phaseIcon) {
-                    phaseIcon.className = 'hb-icon';
-                    if (diffDays <= 7) phaseIcon.className = 'hb-icon hb-warn';
-                }
-            } else if (diffDays === 0) {
-                if (phaseLabel) phaseLabel.textContent = '本日公開';
-                if (phaseEl) phaseEl.textContent = `Day 0`;
-                if (phaseIcon) phaseIcon.className = 'hb-icon hb-good';
-            } else {
-                if (phaseLabel) phaseLabel.textContent = '公開後';
-                if (phaseEl) phaseEl.textContent = `${Math.abs(diffDays)} 日`;
-                if (phaseIcon) phaseIcon.className = 'hb-icon hb-good';
-            }
-            if (phaseSub) phaseSub.textContent = `公開日: ${meta.releaseDateLabel}`;
-
-            // 2) 目標到達確率
-            const gp = computeGoalProbability(movieKey);
-            const goalEl = document.getElementById('hb-goal-value');
-            const goalFill = document.getElementById('hb-goal-fill');
-            if (goalEl && gp.p !== null) {
-                goalEl.textContent = `${gp.p}%`;
-                if (goalFill) goalFill.style.width = `${gp.p}%`;
-            }
-
-            // 3) アラート
-            const anomalies = detectAnomalies(movieKey);
-            const list = document.getElementById('hb-anomaly-list');
-            const count = document.getElementById('hb-anomaly-count');
-            const box = document.getElementById('hb-anomaly-box');
-            const significant = anomalies.filter(a => Math.abs(a.z) >= ANOMALY_Z_WARN);
-            if (count) count.textContent = String(significant.length);
-            if (box) {
-                box.classList.remove('is-bad', 'is-good');
-                if (significant.some(a => a.severity === 'bad')) box.classList.add('is-bad');
-                else if (significant.length > 0 && significant.every(a => a.severity === 'good')) box.classList.add('is-good');
-            }
-            if (list) {
-                if (!significant.length) list.textContent = '異常なし — 全KPIが過去8週レンジ内 (|Z|<1.5)';
-                else list.textContent = significant.slice(0, 3).map(a => `${a.label} ${a.z >= 0 ? '↑' : '↓'} (Z=${a.z.toFixed(1)})`).join(' / ');
-            }
-
-            // 4) 最終更新
-            const upd = document.getElementById('hb-updated-value');
-            const updSub = document.getElementById('hb-updated-sub');
-            if (upd) upd.textContent = meta.lastUpdated;
-            if (updSub) updSub.textContent = meta.lastUpdatedSource;
-        }
-
-        // ============================================================
-        // v2: Rule Engine for "今週の打ち手" Action Cards
-        // ============================================================
-        const ACTION_RULES = [
-            {
-                id: 'R-AW01', phase: 'pre', severity: 'high', when: ctx => ctx.gp && ctx.gp.p !== null && ctx.gp.p < 35,
-                detect: ctx => `目標到達確率 ${ctx.gp.p}% — 認知/意向が目標から大きく乖離`,
-                reason: ctx => `現在の意向 ${ctx.gp.latest}% に対し目標 ${ctx.gp.target}%。残り週数で外挿予測 ${ctx.gp.projected}%。`,
-                action: '熱源 Top3 のうち Conductivity が高い順にメッセージ集中。TVCM/インフルエンサー予算を追加。'
-            },
-            {
-                id: 'R-AW02', phase: 'pre', severity: 'low', when: ctx => ctx.gp && ctx.gp.p !== null && ctx.gp.p >= 75,
-                detect: ctx => `目標到達確率 ${ctx.gp.p}% — 順調`,
-                reason: ctx => `現在 ${ctx.gp.latest}% / 目標 ${ctx.gp.target}% 。意向のモメンタムが十分。`,
-                action: 'これ以上の認知拡大より、ユーザの「行く理由」深堀 (動機メッセージのABテスト) に予算振替。'
-            },
-            {
-                id: 'R-AN01', phase: 'all', severity: 'high', when: ctx => ctx.anomalies.some(a => a.severity === 'bad' && a.id === 'interest'),
-                detect: ctx => '鑑賞意向 急落 (|Z| ≥ 2)',
-                reason: ctx => '直近週で意向値が過去8週平均から2σ以上下振れ。クリエイティブ/コミュニティ反発の早期点検が必要。',
-                action: '直近1週のSNS言及をネガポジ別に総点検。コアファン向けFAQ/釈明メッセージ準備。'
-            },
-            {
-                id: 'R-AN02', phase: 'all', severity: 'positive', when: ctx => ctx.anomalies.some(a => a.severity === 'good' && a.id === 'interest'),
-                detect: ctx => '鑑賞意向 急騰 (Z ≥ 1.5)',
-                reason: ctx => '直近週で意向が +2σ。点火イベント (試写・予告・タイアップ) が効いた可能性。',
-                action: '効いた施策のクリエイティブを増幅 (媒体集中投下/インフルエンサー二次拡散) し、勢いを公開週まで維持。'
-            },
-            {
-                id: 'R-HT01', phase: 'pre', severity: 'medium', when: ctx => {
-                    const sources = (ctx.meta && ctx.meta.heatSources) || [];
-                    return sources.some(s => s.stock >= 700 && s.conductivity < 20);
-                },
-                detect: ctx => '高Stock × 低Conductivity の熱源あり',
-                reason: ctx => {
-                    const s = ctx.meta.heatSources.find(x => x.stock >= 700 && x.conductivity < 20);
-                    return `「${s.name}」は固定ファン量 ${s.stock} と多いが、本作への移譲率が ${s.conductivity}% と低い。`;
-                },
-                action: '当該熱源のファン向けに、本作との「接続点 (キャラ・世界観・体験)」を強調する専用クリエイティブを投入。'
-            },
-            {
-                id: 'R-HT02', phase: 'pre', severity: 'positive', when: ctx => {
-                    const sources = (ctx.meta && ctx.meta.heatSources) || [];
-                    return sources.some(s => s.flow >= 10 && s.conductivity >= 25);
-                },
-                detect: ctx => '点火条件を満たす熱源あり',
-                reason: ctx => {
-                    const s = ctx.meta.heatSources.find(x => x.flow >= 10 && x.conductivity >= 25);
-                    return `「${s.name}」は Flow +${s.flow}% / Conductivity ${s.conductivity}% 。点火 (Ignition) フェーズに到達。`;
-                },
-                action: 'PR/メディア露出を当該熱源に集中。広告クリエイティブにも反映してリフトを最大化。'
-            },
-            {
-                id: 'R-HT03', phase: 'pre', severity: 'medium', when: ctx => {
-                    const sources = (ctx.meta && ctx.meta.heatSources) || [];
-                    return sources.length > 0 && sources.every(s => s.flow < 3);
-                },
-                detect: ctx => '全熱源で Flow が鈍化',
-                reason: ctx => '熱源全体が前週比 +3% 未満で停滞。新規話題が枯渇しモメンタム喪失リスク。',
-                action: '新ビジュアル/特報/コラボ等の「点火イベント」を 7 日以内に投下。インフルエンサー起用も検討。'
-            },
-            {
-                id: 'R-DM01', phase: 'pre', severity: 'medium', when: ctx => {
-                    const tr = (ctx.dataMovie && ctx.dataMovie.pre) || {};
-                    const m = tr.demo_m || []; const f = tr.demo_f || [];
-                    const total = m.concat(f).reduce((a,b)=>a+b,0);
-                    if (!total) return false;
-                    const teen = ((m[0]||0)+(f[0]||0))/total*100;
-                    return teen < 8;
-                },
-                detect: ctx => '10代の意向シェアが業界基準を下回る',
-                reason: ctx => '若年層の取り込みが弱い。SNS拡散・口コミ波及の起点が不足する恐れ。',
-                action: 'TikTok/Instagram Reels向けの短尺UGCフォーマットを増産。学校・部活軸のタイアップ追加。'
-            },
-            {
-                id: 'R-FM01', phase: 'pre', severity: 'low', when: ctx => {
-                    const m = (ctx.dataMovie && ctx.dataMovie.pre && ctx.dataMovie.pre.marketing) || {};
-                    const src = m.source || []; const sum = src.reduce((a,b)=>a+b,0);
-                    if (!sum) return false;
-                    const youtubeShare = (src[4] || 0) / sum * 100;
-                    return youtubeShare > 32;
-                },
-                detect: ctx => 'YouTube経由認知が3割超 — 偏りリスク',
-                reason: ctx => 'Conductivity 観点で他媒体 (TV/X/TikTok) の検証が薄くなる恐れ。',
-                action: 'X/TikTokクリエイティブのCPL対比表を作成し、媒体ポートフォリオを再配分検討。'
-            },
-            {
-                id: 'R-PO01', phase: 'post', severity: 'high', when: ctx => ctx.anomalies.some(a => a.severity === 'bad' && (a.id === 'sat' || a.id === 'rewatch')),
-                detect: ctx => '満足度・再鑑賞が急落',
-                reason: ctx => '実観客の評価指標が下振れ。ロングラン形成にブレーキ。',
-                action: 'コアファンのSNS言及を時系列で分析し、ネガティブの根因 (尺/結末/キャラ) を特定。再編集や追加コンテンツで対応。'
-            },
-            {
-                id: 'R-PO02', phase: 'post', severity: 'positive', when: ctx => ctx.anomalies.some(a => a.severity === 'good' && (a.id === 'nps' || a.id === 'rewatch')),
-                detect: ctx => 'NPS / 再鑑賞意向が高水準',
-                reason: ctx => 'ロングラン適性が高い。リピーター施策の余地あり。',
-                action: '「2回目特典」「N回鑑賞特典」を即日設計。SNSハッシュタグキャンペーンで自走化。'
-            }
-        ];
-
-        function runActionRules(movieKey) {
-            const meta = marketingMeta[movieKey];
-            const dataMovie = dataSet[movieKey];
-            const gp = computeGoalProbability(movieKey);
-            const anomalies = detectAnomalies(movieKey);
-            const phase = (meta && currentWeek >= meta.releaseTimelineWeek) ? 'post' : 'pre';
-            const ctx = { meta, dataMovie, gp, anomalies, currentWeek, phase };
-            const fired = [];
-            ACTION_RULES.forEach(rule => {
-                if (rule.phase !== 'all' && rule.phase !== phase) return;
-                let active = false;
-                try { active = !!rule.when(ctx); } catch (e) { active = false; }
-                if (!active) return;
-                fired.push({
-                    id: rule.id,
-                    severity: rule.severity,
-                    phase: rule.phase,
-                    detect: rule.detect(ctx),
-                    reason: rule.reason(ctx),
-                    action: rule.action
-                });
-            });
-            return fired;
-        }
-
-        function renderActionCards() {
-            const grid = document.getElementById('actionCardsGrid');
-            const sub = document.getElementById('actionCardsSub');
-            if (!grid) return;
-            const movieKey = (document.getElementById('movieSelector') || {}).value || 'movie1';
-            let cards = runActionRules(movieKey);
-            const sortVal = (document.getElementById('actionSortSelect') || {}).value || 'severity';
-            const sevOrder = { high: 0, medium: 1, positive: 2, low: 3 };
-            cards.sort((a, b) => {
-                if (sortVal === 'severity') return (sevOrder[a.severity] - sevOrder[b.severity]) || a.id.localeCompare(b.id);
-                if (sortVal === 'rule') return a.id.localeCompare(b.id);
-                if (sortVal === 'phase') return a.phase.localeCompare(b.phase) || (sevOrder[a.severity] - sevOrder[b.severity]);
-                return 0;
-            });
-            const sevLabel = { high: '緊急', medium: '注意', low: '情報', positive: '好機' };
-            if (sub) sub.textContent = `ルールエンジン: ${cards.length} 件発火 (全 ${ACTION_RULES.length} ルール / 異常検知 |Z|≥1.5)`;
-            if (!cards.length) {
-                grid.innerHTML = '<div class="ac-empty">発火中のアラートはありません。全KPIが想定レンジ内で推移しています。</div>';
-                return;
-            }
-            grid.innerHTML = cards.map(c => `
-                <div class="action-card" data-severity="${c.severity}">
-                    <div class="ac-row1">
-                        <span class="ac-tag severity-${c.severity}">${sevLabel[c.severity] || c.severity}</span>
-                        <span class="ac-rule-id">${c.id}</span>
-                    </div>
-                    <div class="ac-detect">${escapeMetaHtml(c.detect)}</div>
-                    <div class="ac-reason">${escapeMetaHtml(c.reason)}</div>
-                    <div class="ac-do"><i data-lucide="arrow-right-circle" class="w-3.5 h-3.5 ac-do-icon"></i><span>${escapeMetaHtml(c.action)}</span></div>
-                </div>
-            `).join('');
-            try { if (typeof lucide !== 'undefined') lucide.createIcons(); } catch (e) { /* ignore */ }
-        }
-
-        // ============================================================
-        // v2: Heat Transfer Table + SVG Sankey
-        // ============================================================
-        function classifyConductivityStatus(s) {
-            if (s.flow >= 8 && s.conductivity >= 25) return { cls: 'good', label: '点火中' };
-            if (s.stock >= 700 && s.conductivity < 20) return { cls: 'opportunity', label: '高Stock低Cond' };
-            if (s.stock < 400 && s.conductivity >= 25) return { cls: 'efficient', label: '高効率' };
-            if (s.flow < 0) return { cls: 'weak', label: '冷却中' };
-            return { cls: 'efficient', label: '緩やか' };
-        }
-
-        function renderHeatTransferTable() {
-            const movieKey = (document.getElementById('movieSelector') || {}).value || 'movie1';
-            const meta = marketingMeta[movieKey];
-            const tbl = document.getElementById('heatTransferTable');
-            if (!tbl || !meta) return;
-            const topN = parseInt((document.getElementById('heatTopNSelect') || {}).value || '10', 10);
-            const sources = (meta.heatSources || []).slice().sort((a, b) => b.contribution - a.contribution).slice(0, topN);
-            const totalContribution = sources.reduce((s, x) => s + x.contribution, 0) || 1;
-            const maxStock = Math.max(...sources.map(s => s.stock), 1);
-            const tbody = sources.map(s => {
-                const status = classifyConductivityStatus(s);
-                const condCls = s.conductivity >= 25 ? 'good' : (s.conductivity >= 15 ? 'mid' : 'bad');
-                const flowCls = s.flow >= 5 ? 'good' : (s.flow >= 0 ? 'mid' : 'bad');
-                const flowSign = s.flow >= 0 ? '+' : '';
-                const contributionPct = (s.contribution / totalContribution * 100).toFixed(1);
-                return `<tr>
-                    <td><div class="heat-source-name"><span class="heat-source-type is-${s.type}">${s.type}</span><span>${escapeMetaHtml(s.name)}</span></div></td>
-                    <td class="heat-num">${s.stock.toLocaleString('ja-JP')}<div class="heat-pct-bar" style="margin-top:3px;"><div class="heat-pct-bar-fill mid" style="width:${(s.stock/maxStock*100).toFixed(1)}%"></div></div></td>
-                    <td class="heat-num"><span class="stat-chip ${flowCls === 'good' ? 'good' : (flowCls === 'bad' ? 'bad' : 'warn')}">${flowSign}${s.flow.toFixed(1)}%</span></td>
-                    <td><div class="heat-pct-bar" style="min-width:90px;"><div class="heat-pct-bar-fill ${condCls}" style="width:${Math.min(100,s.conductivity*2)}%"></div></div><span style="font-size:10px;color:#475569;font-weight:700;">${s.conductivity}%</span></td>
-                    <td class="heat-num">${s.contribution.toFixed(1)}<div style="font-size:9px;color:#94a3b8;">(${contributionPct}%)</div></td>
-                    <td><span class="heat-status-pill ${status.cls}">${status.label}</span></td>
-                </tr>`;
-            }).join('');
-            tbl.querySelector('tbody').innerHTML = tbody || '<tr><td colspan="6" class="text-center text-xs text-slate-400 py-6">熱源データなし</td></tr>';
-        }
-
-        function renderSankey() {
-            const movieKey = (document.getElementById('movieSelector') || {}).value || 'movie1';
-            const meta = marketingMeta[movieKey];
-            const svg = document.getElementById('sankeySvg');
-            const tooltip = document.getElementById('sankeyTooltip');
-            if (!svg || !meta) return;
-            svg.innerHTML = '';
-            const W = 600, H = 400;
-            const padX = 20, padY = 24;
-            const colW = 110;
-            const sources = (meta.heatSources || []).slice().sort((a,b) => b.contribution - a.contribution).slice(0, 6);
-            if (!sources.length) return;
-            const interestTotal = sources.reduce((s,x) => s + x.contribution, 0);
-            // 左→中央→右の3カラム sankey
-            // L: heat sources / M: 認知→意向 / R: 鑑賞行動
-            const intentLevel = interestTotal;          // 意向(=interest contribution sum)
-            const awarenessLevel = intentLevel * 1.6;   // 認知レベル (簡易: 意向の1.6倍)
-            const visitLevel = intentLevel * 0.42;      // 来館転換 (簡易: 意向×42%)
-
-            // X 座標
-            const x0 = padX;
-            const x1 = padX + colW + 60;
-            const x2 = padX + (colW + 60) * 2;
-            const x3 = W - padX - colW;
-
-            // ノード描画ヘルパ
-            function drawNode(x, y, w, h, fill, label, value) {
-                const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                r.setAttribute('x', x); r.setAttribute('y', y);
-                r.setAttribute('width', w); r.setAttribute('height', h);
-                r.setAttribute('fill', fill); r.setAttribute('rx', 3);
-                svg.appendChild(r);
-                const t1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                t1.setAttribute('x', x + w/2); t1.setAttribute('y', y - 6);
-                t1.setAttribute('text-anchor', 'middle'); t1.setAttribute('class', 'sankey-node-label');
-                t1.textContent = label;
-                svg.appendChild(t1);
-                const t2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                t2.setAttribute('x', x + w/2); t2.setAttribute('y', y + h + 12);
-                t2.setAttribute('text-anchor', 'middle'); t2.setAttribute('class', 'sankey-node-value');
-                t2.textContent = value;
-                svg.appendChild(t2);
-            }
-
-            // フローパス
-            function drawFlow(x1, y1, h1, x2, y2, h2, color, opacity, hint) {
-                const cx = (x1 + x2) / 2;
-                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                const d = `M ${x1} ${y1} C ${cx} ${y1}, ${cx} ${y2}, ${x2} ${y2} L ${x2} ${y2 + h2} C ${cx} ${y2 + h2}, ${cx} ${y1 + h1}, ${x1} ${y1 + h1} Z`;
-                path.setAttribute('d', d);
-                path.setAttribute('fill', color); path.setAttribute('opacity', opacity);
-                path.setAttribute('stroke', 'none');
-                path.style.cursor = 'pointer';
-                path.addEventListener('mousemove', ev => {
-                    if (!tooltip) return;
-                    tooltip.classList.add('show');
-                    tooltip.textContent = hint;
-                    const rect = svg.getBoundingClientRect();
-                    tooltip.style.left = (ev.clientX - rect.left + 12) + 'px';
-                    tooltip.style.top = (ev.clientY - rect.top + 12) + 'px';
-                });
-                path.addEventListener('mouseleave', () => { if (tooltip) tooltip.classList.remove('show'); });
-                svg.appendChild(path);
-            }
-
-            // L (heat sources)
-            const usableH = H - padY * 2 - 24;
-            const sourceTotal = sources.reduce((s,x) => s + x.contribution, 0) || 1;
-            const sourceColors = { cast: '#a78bfa', tribe: '#f472b6', genre: '#34d399', brand: '#fbbf24' };
-            let yL = padY + 12;
-            const sourceYs = [];
-            sources.forEach((s) => {
-                const h = (s.contribution / sourceTotal) * usableH;
-                const color = sourceColors[s.type] || '#94a3b8';
-                drawNode(x0, yL, 14, h, color, s.name.length > 8 ? s.name.slice(0, 8) + '…' : s.name, s.stock.toLocaleString('ja-JP'));
-                sourceYs.push({ y: yL, h, color, name: s.name, contribution: s.contribution });
-                yL += h + 6;
-            });
-
-            // M (Awareness)
-            const yM = padY + 12;
-            const hM = usableH;
-            drawNode(x1, yM, 14, hM, '#cbd5e1', '認知', Math.round(awarenessLevel).toLocaleString('ja-JP'));
-
-            // M2 (意向)
-            const yM2 = padY + 12 + (awarenessLevel - intentLevel) / awarenessLevel * usableH;
-            const hM2 = (intentLevel / awarenessLevel) * usableH;
-            drawNode(x2, yM2, 14, hM2, '#818cf8', '鑑賞意向', Math.round(intentLevel).toLocaleString('ja-JP'));
-
-            // R (Visit)
-            const yR = padY + 12 + (intentLevel - visitLevel) / intentLevel * hM2 + (yM2 - padY - 12);
-            const hR = (visitLevel / intentLevel) * hM2;
-            drawNode(x3, yR, 14, hR, '#10b981', '来館行動', Math.round(visitLevel).toLocaleString('ja-JP'));
-
-            // Flows L→M (ratioに応じてM側の高さを比例配分)
-            let mYAcc = yM;
-            sources.forEach((s, idx) => {
-                const ratio = s.contribution / sourceTotal;
-                const segH = ratio * hM;
-                drawFlow(x0 + 14, sourceYs[idx].y, sourceYs[idx].h, x1, mYAcc, segH, sourceYs[idx].color, 0.45, `${s.name} → 認知 (寄与 ${(ratio*100).toFixed(1)}%)`);
-                mYAcc += segH;
-            });
-
-            // Flow M→M2 (Awareness → Intent)
-            drawFlow(x1 + 14, yM, hM, x2, yM2, hM2, '#a5b4fc', 0.45, `認知 → 意向 (転換率 ${Math.round(intentLevel/awarenessLevel*100)}%)`);
-
-            // Flow M2→R (Intent → Visit)
-            drawFlow(x2 + 14, yM2, hM2, x3, yR, hR, '#34d399', 0.55, `意向 → 来館 (転換率 ${Math.round(visitLevel/intentLevel*100)}%)`);
-        }
-
-        // ============================================================
-        // v2: Z-score Display Mode (KPI / Trend を Z 表示に切り替え)
-        // ============================================================
-        let kpiDisplayMode = 'value'; // 'value' | 'zscore'
-
-        function setKpiDisplayMode(mode) {
-            kpiDisplayMode = mode;
-            // ボタン状態反映
-            document.querySelectorAll('[data-zscore-toggle]').forEach(btn => {
-                btn.classList.toggle('is-active', btn.getAttribute('data-zscore-toggle') === mode);
-            });
-            // 反映
-            updateDashboard();
-        }
-
-        // ============================================================
-        // v2: Event Annotation 共通プラグイン設定
-        // ============================================================
-        function buildEventAnnotations(movieKey, weekRangeStart, weekRangeEnd) {
-            const meta = marketingMeta[movieKey];
-            if (!meta || !meta.events) return {};
-            const out = {};
-            const colorByType = { creative: '#6366f1', pr: '#10b981', media: '#f59e0b', release: '#ef4444' };
-            (meta.events || []).forEach((ev, idx) => {
-                if (typeof weekRangeStart === 'number' && typeof weekRangeEnd === 'number') {
-                    if (ev.week < weekRangeStart || ev.week > weekRangeEnd) return;
-                }
-                out['ev_' + idx] = {
-                    type: 'line',
-                    xMin: ev.week - weekRangeStart,
-                    xMax: ev.week - weekRangeStart,
-                    borderColor: colorByType[ev.type] || '#64748b',
-                    borderWidth: 1.2,
-                    borderDash: [3, 3],
-                    label: {
-                        display: true,
-                        content: ev.label,
-                        position: 'start',
-                        backgroundColor: 'rgba(255,255,255,0.85)',
-                        color: colorByType[ev.type] || '#64748b',
-                        font: { size: 9, weight: 'bold' },
-                        padding: { top: 1, bottom: 1, left: 4, right: 4 },
-                        borderRadius: 2
-                    }
-                };
-            });
-            return out;
-        }
-
-        function buildGoalBandAnnotation(movieKey, kpiKey, weekRangeStart, weekRangeEnd) {
-            const meta = marketingMeta[movieKey];
-            if (!meta || !meta.similarBand) return {};
-            const band = meta.similarBand[kpiKey];
-            if (!band) return {};
-            const out = {};
-            const startIdx = Math.max(0, weekRangeStart);
-            const endIdx = Math.min(band.p25.length - 1, weekRangeEnd);
-            // 各 dataIndex ごとに band rect として注釈は重いので、boxとして簡易帯を出す (平均値ベース)
-            const p25Avg = band.p25.slice(startIdx, endIdx+1).reduce((a,b)=>a+b,0) / Math.max(1, endIdx-startIdx+1);
-            const p75Avg = band.p75.slice(startIdx, endIdx+1).reduce((a,b)=>a+b,0) / Math.max(1, endIdx-startIdx+1);
-            out['goalBand_' + kpiKey] = {
-                type: 'box',
-                yMin: p25Avg, yMax: p75Avg,
-                backgroundColor: 'rgba(99,102,241,0.07)',
-                borderColor: 'rgba(99,102,241,0.25)',
-                borderWidth: 1,
-                borderDash: [3, 3],
-                label: {
-                    display: true,
-                    content: '類似作 P25-P75',
-                    position: { x: 'end', y: 'start' },
-                    color: '#6366f1', font: { size: 9, weight: 'bold' },
-                    backgroundColor: 'rgba(255,255,255,0.7)',
-                    padding: { top: 1, bottom: 1, left: 3, right: 3 }
-                }
-            };
-            return out;
-        }
-
 
         function syncHeaderToggleButtons() {
             const dsBtn = document.getElementById('header-toggle-datasource');
@@ -3201,7 +2495,160 @@
             }
 
             const post = JSON.parse(JSON.stringify(base.post));
+
+            // センチメント(ポジ率)を週次トレンドに追従させる（C: 比較可能化）
+            if (week >= 0 && Array.isArray(trends.sentimentPos) && trends.sentimentPos.length) {
+                const si = Math.min(week, trends.sentimentPos.length - 1);
+                const pos = Number(trends.sentimentPos[si]);
+                if (Number.isFinite(pos)) {
+                    const b = post.sentimentRatio || [60, 20, 20];
+                    const restBase = (Number(b[1]) || 0) + (Number(b[2]) || 0) || 1;
+                    const rem = Math.max(0, 100 - pos);
+                    const neu = Math.round(rem * (Number(b[1]) || 0) / restBase);
+                    const neg = Math.max(0, 100 - pos - neu);
+                    post.sentimentRatio = [pos, neu, neg];
+                }
+            }
+
             return { ...base, n, nps, sat, rewatchRate: rewatch, post };
+        }
+
+        /** 週次トレンドから 当該週/前週/公開初週 の値を取り出す（A: 比較） */
+        function v4TrendAt(base, key, week) {
+            const arr = base && base.trends && base.trends[key];
+            if (!Array.isArray(arr) || !arr.length) return null;
+            const i = Math.max(0, Math.min(week, arr.length - 1));
+            return { cur: Number(arr[i]), prev: i > 0 ? Number(arr[i - 1]) : null, open: Number(arr[0]) };
+        }
+
+        /** 当該indexの観客反応指数（NPS/満足度/再鑑賞の合成）を算出 */
+        function v4CompositeAt(base, i) {
+            const tr = base && base.trends;
+            if (!tr) return null;
+            const idx = Math.max(0, Math.min(i, (tr.nps?.length || 1) - 1));
+            return computePostCompositeScore({ nps: tr.nps?.[idx], sat: tr.sat?.[idx], rewatchRate: tr.rewatch?.[idx] });
+        }
+
+        /** gaie週次から広告インプレッション合計と加重平均CTRを取得（公開前モメンタム用） */
+        function v4GaieWeek(base, week) {
+            const w = base && base.gaie && base.gaie.weekly;
+            if (!Array.isArray(w)) return null;
+            const row = w.find(r => r.week === week);
+            if (!row) return null;
+            let imp = 0, clk = 0, ctrImp = 0;
+            ['youtube', 'x', 'tiktok', 'facebook'].forEach(p => {
+                const dd = row[p]; if (!dd) return;
+                imp += Number(dd.imp) || 0;
+                if (typeof dd.ctr === 'number') { clk += (Number(dd.imp) || 0) * (dd.ctr / 100); ctrImp += Number(dd.imp) || 0; }
+            });
+            return { imp, ctr: ctrImp > 0 ? (clk / ctrImp * 100) : null };
+        }
+
+        /** 比較バッジ文言＋クラスを生成（前週比/初週比） */
+        function v4DeltaBadge(cur, ref, dec, unit, label) {
+            const lbl = label || '';
+            if (!Number.isFinite(cur) || !Number.isFinite(ref)) return { txt: `${lbl} --`, cls: 'neu' };
+            const d = cur - ref;
+            const r = dec ? d.toFixed(dec) : String(Math.round(d));
+            const cls = d > (dec ? 0.05 : 0.5) ? 'pos' : (d < -(dec ? 0.05 : 0.5) ? 'neg' : 'neu');
+            const sign = d > 0 ? '+' : '';
+            const icon = d > 0 ? '▲' : (d < 0 ? '▼' : '−');
+            return { txt: `${lbl} ${icon} ${sign}${r}${unit || ''}`, cls };
+        }
+
+        /** ミニ・スパークライン（推移）を描画 */
+        function renderSpark(id, data, color) {
+            const ctx = document.getElementById(id);
+            if (!ctx) return;
+            if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+            const vals = (data || []).map(v => Number(v));
+            if (!vals.length || vals.every(v => !Number.isFinite(v))) return;
+            charts[id] = new Chart(ctx, {
+                type: 'line',
+                data: { labels: vals.map((_, i) => i), datasets: [{ data: vals, borderColor: color, borderWidth: 2, fill: true, backgroundColor: color + '22', pointRadius: 0, tension: 0.35 }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                    scales: { x: { display: false }, y: { display: false } }
+                }
+            });
+        }
+
+        function v4ApplyChip(id, badge) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = badge.txt;
+            el.className = 'v4-cmp-chip ' + badge.cls;
+        }
+
+        function v4PctBadge(cur, prev, label) {
+            const lbl = label || '';
+            if (!Number.isFinite(cur) || !Number.isFinite(prev) || prev === 0) return { txt: `${lbl} --`, cls: 'neu' };
+            const p = (cur - prev) / prev * 100;
+            const cls = p > 0.5 ? 'pos' : (p < -0.5 ? 'neg' : 'neu');
+            const icon = p > 0 ? '▲' : (p < 0 ? '▼' : '−');
+            return { txt: `${lbl} ${icon} ${p > 0 ? '+' : ''}${p.toFixed(0)}%`, cls };
+        }
+
+        function v4FmtImp(v) {
+            if (!Number.isFinite(v)) return '--';
+            if (v >= 1e6) return (v / 1e6).toFixed(1) + 'M';
+            if (v >= 1e3) return (v / 1e3).toFixed(0) + 'K';
+            return String(Math.round(v));
+        }
+
+        /** 公開後「今日のチェックポイント」: 比較バッジ・スパークライン・モメンタムタイル */
+        function v4RenderDailyMomentumPost(base, t, week) {
+            const wk = Math.max(0, week);
+            const trN = (base.trends && base.trends.nps) ? base.trends.nps.length : 1;
+            const idx = Math.min(wk, trN - 1);
+
+            const scCur = v4CompositeAt(base, idx);
+            const scPrev = idx > 0 ? v4CompositeAt(base, idx - 1) : null;
+            const scOpen = v4CompositeAt(base, 0);
+            v4ApplyChip('summary_composite_wow', v4DeltaBadge(scCur && scCur.total, scPrev && scPrev.total, 0, '点', '前週比'));
+            v4ApplyChip('summary_composite_open', v4DeltaBadge(scCur && scCur.total, scOpen && scOpen.total, 0, '点', '公開初週比'));
+
+            const compArr = [];
+            for (let i = 0; i <= idx; i++) { const sc = v4CompositeAt(base, i); compArr.push(sc ? sc.total : null); }
+            renderSpark('summary_composite_spark', compArr, '#5b53e6');
+
+            const setTile = (valId, wowId, trObj, dec, unit) => {
+                const vEl = document.getElementById(valId);
+                if (vEl) vEl.textContent = (trObj && Number.isFinite(trObj.cur)) ? (dec ? trObj.cur.toFixed(dec) : Math.round(trObj.cur)) : '--';
+                v4ApplyChip(wowId, v4DeltaBadge(trObj && trObj.cur, trObj && trObj.prev, dec, unit, '前週比'));
+            };
+            setTile('mom_post_nps_val', 'mom_post_nps_wow', v4TrendAt(base, 'nps', wk), 0, 'pt');
+            setTile('mom_post_sat_val', 'mom_post_sat_wow', v4TrendAt(base, 'sat', wk), 1, '点');
+            setTile('mom_post_rew_val', 'mom_post_rew_wow', v4TrendAt(base, 'rewatch', wk), 0, '%');
+            setTile('mom_post_pos_val', 'mom_post_pos_wow', v4TrendAt(base, 'sentimentPos', wk), 0, '%');
+        }
+
+        /** 公開前「今日のチェックポイント」: 意向トレンド比較＋広告の勢い */
+        function v4RenderDailyMomentumPre(base, t, week) {
+            const interest = (base.pre && base.pre.trends && base.pre.trends.interest) || [];
+            const len = interest.length;
+            const idx = len ? Math.max(0, Math.min(len - 1, week + (len - 1))) : -1;
+            const iCur = idx >= 0 ? Number(interest[idx]) : NaN;
+            const iPrev = idx > 0 ? Number(interest[idx - 1]) : NaN;
+            const i4 = idx >= 4 ? Number(interest[idx - 4]) : NaN;
+
+            v4ApplyChip('page_summary_metric_wow', v4DeltaBadge(iCur, iPrev, 0, '%', '先週比'));
+            v4ApplyChip('page_summary_metric_4w', v4DeltaBadge(iCur, i4, 0, '%', '4週前比'));
+            renderSpark('page_summary_metric_spark', interest.slice(0, idx + 1), '#f97316');
+
+            const intentEl = document.getElementById('mom_pre_intent_val');
+            if (intentEl) intentEl.textContent = (t.pre && Number.isFinite(Number(t.pre.interestRate))) ? Number(t.pre.interestRate) : '--';
+            v4ApplyChip('mom_pre_intent_wow', v4DeltaBadge(iCur, iPrev, 0, '%', '先週比'));
+
+            const g = v4GaieWeek(base, week);
+            const gPrev = v4GaieWeek(base, week - 1);
+            const impEl = document.getElementById('mom_pre_imp_val');
+            if (impEl) impEl.textContent = g ? v4FmtImp(g.imp) : '--';
+            v4ApplyChip('mom_pre_imp_wow', v4PctBadge(g ? g.imp : NaN, gPrev ? gPrev.imp : NaN, '前週比'));
+            const ctrEl = document.getElementById('mom_pre_ctr_val');
+            if (ctrEl) ctrEl.textContent = (g && Number.isFinite(g.ctr)) ? g.ctr.toFixed(2) : '--';
+            v4ApplyChip('mom_pre_ctr_wow', v4DeltaBadge(g ? g.ctr : NaN, gPrev ? gPrev.ctr : NaN, 2, 'pt', '前週比'));
         }
 
         function pickInsightText(v) {
@@ -3629,20 +3076,6 @@
                 });
             }
 
-            // v2: event annotations + goal band
-            let annotations = {};
-            try {
-                const movieKey = (document.getElementById('movieSelector') || {}).value;
-                if (movieKey && labels && labels.length) {
-                    const n = labels.length;
-                    const weekStart = currentWeek - (n - 1);
-                    const weekEnd = currentWeek;
-                    annotations = {
-                        ...buildEventAnnotations(movieKey, weekStart, weekEnd),
-                        ...buildGoalBandAnnotation(movieKey, 'interest', weekStart + 8, weekEnd + 8)
-                    };
-                }
-            } catch(e) { console.warn('annotation build error', e); }
             charts[id] = new Chart(ctx, {
                 type: 'line',
                 data: { labels, datasets },
@@ -3676,8 +3109,7 @@
                             callbacks: {
                                 label: (ctx) => `${ctx.dataset.label}: ${ctx.raw}${unit}`
                             }
-                        },
-                        annotation: { annotations }
+                        }
                     }
                 }
             });
@@ -4090,20 +3522,12 @@
 
             if (isPre) {
                 if (pageSummaryText) pageSummaryText.innerText = buildPreWeeklyPromoSummaryAdvice(t, c);
-                const preFreqLabels = ['年1回', '2-4回', '5-11回', '12回+'];
-                const preFreqColors = ['#94a3b8', '#3b82f6', '#8b5cf6', '#f97316'];
-                if (t.pre && Array.isArray(t.pre.freq) && t.pre.freq.length >= 4) {
-                    renderSummaryPanelDoughnut('page_summary_pre_freq_donut', preFreqLabels, t.pre.freq, preFreqColors);
-                } else if (charts.page_summary_pre_freq_donut) {
-                    charts.page_summary_pre_freq_donut.destroy();
-                    delete charts.page_summary_pre_freq_donut;
-                }
-                renderSummaryPreDemoDonut('page_summary_pre_demo_donut', t.pre.demo_m, t.pre.demo_f, 'page_summary_pre_demo_top');
-                renderSummaryPreSourceTopBar('page_summary_pre_source_chart', newSourceLabels, t.pre.source, cArr(d => d.pre?.source), 5);
+                try { v4RenderDailyMomentumPre(tBase, t, currentWeek); } catch (e) { console.error('momentum(pre) error:', e); }
                 renderBar('preIntentionChart', ['興味あり'], [t.pre.interestRate], cArr(d => d.pre ? [d.pre.interestRate] : null), '#f97316');
                 {
                     const baseInterestLabels = ['6週前', '5週前', '4週前', '3週前', '先々週', '先週', '今週'];
                     const clip = clipPreInterestTrend(t.pre.trends.interest, c.pre ? c.pre.trends.interest : null, baseInterestLabels, currentWeek);
+                    // 推移は base.pre.trends.interest を持つので、各スロット個別の推移を作成
                     const trendComps = !hasComp
                         ? null
                         : (useIndividual
@@ -4142,26 +3566,7 @@
             if (!isPre) {
                 if (pageSummaryTextPost) pageSummaryTextPost.innerText = buildPostWeeklyPromoSummaryAdvice(t, c);
                 updatePostCompositeScoreUI(computePostCompositeScore(t), computePostCompositeScore(c));
-                const freqLabels = ['年1回', '2-4回', '5-11回', '12回+'];
-                const freqColors = ['#94a3b8', '#3b82f6', '#8b5cf6', '#f97316'];
-                if (t.post && t.post.frequency && t.post.frequency.length >= 4) {
-                    renderSummaryPanelDoughnut('page_summary_freq_donut', freqLabels, t.post.frequency, freqColors);
-                } else if (charts.page_summary_freq_donut) {
-                    charts.page_summary_freq_donut.destroy();
-                    delete charts.page_summary_freq_donut;
-                }
-                if (t.post && t.post.sentimentRatio && t.post.sentimentRatio.length >= 3) {
-                    renderSummaryPanelDoughnut('page_summary_sentiment_donut', ['ポジティブ', 'ニュートラル', 'ネガティブ'], t.post.sentimentRatio, ['#10b981', '#94a3b8', '#ef4444']);
-                } else if (charts.page_summary_sentiment_donut) {
-                    charts.page_summary_sentiment_donut.destroy();
-                    delete charts.page_summary_sentiment_donut;
-                }
-                if (t.post && Array.isArray(t.post.companion) && t.post.companion.length >= 4) {
-                    renderSummaryPanelDoughnut('page_summary_companion_donut', ['1人', '友人', '恋人', '家族'], t.post.companion, ['#94a3b8', '#3b82f6', '#ec4899', '#f59e0b']);
-                } else if (charts.page_summary_companion_donut) {
-                    charts.page_summary_companion_donut.destroy();
-                    delete charts.page_summary_companion_donut;
-                }
+                try { v4RenderDailyMomentumPost(tBase, t, currentWeek); } catch (e) { console.error('momentum(post) error:', e); }
                 updateKPI('nps', t.nps, kArr(d => d.nps), t.trends.nps, kTrendArr(d => d.trends?.nps), '', true);
                 updateKPI('sat', t.sat, kArr(d => d.sat), t.trends.sat, kTrendArr(d => d.trends?.sat), '', true);
                 updateKPI('rewatch', t.rewatchRate, kArr(d => d.rewatchRate), t.trends.rewatch, kTrendArr(d => d.trends?.rewatch), '%', true);
@@ -4188,29 +3593,30 @@
 
                 const boxContainer = document.getElementById('correlation_box_container');
                 if(boxContainer) {
+                    // 軸：X=満足度(作品の質) / Y=一般層への広がり(ライト+新規層比率)。
+                    // 満足度とNPSは相関が強いため、相関の低い「広がり」を第2軸に採用し4象限を機能させる。
                     const sat = t.sat;
-                    const nps = t.nps;
-                    const heat = t.post.heat ? t.post.heat.avgLen : 60;
-                    const coreRatio = t.post.frequency ? (t.post.frequency[3] + t.post.frequency[2]) : 50;
+                    const freq = t.post.frequency || [25, 25, 25, 25];
+                    const breadth = (freq[0] || 0) + (freq[1] || 0);   // 年1回(新規) + 2-4回(ライト)
+                    const core = (freq[2] || 0) + (freq[3] || 0);       // 5-11回 + 12回+(ヘビー)
+                    const SAT_TH = 8.0, REACH_TH = 50;
 
                     let title = "", desc = "", colorClass = "", icon = "";
 
-                    if (sat >= 8.5 && nps >= 40) {
-                        if (coreRatio > 60) { title="熱狂的ファンベース型 (Cult Hit)"; desc="コアファンの熱量が極めて高い。一般層への拡大が鍵。"; colorClass="bg-purple-50 text-purple-700 border-purple-200"; icon="flame"; }
-                        else if (heat > 80) { title="社会現象ポテンシャル (Viral Hit)"; desc="満足度・推奨度が高く、口コミ熱量も凄い。大ヒットの予兆。"; colorClass="bg-rose-50 text-rose-700 border-rose-200"; icon="trending-up"; }
-                        else { title="優等生ヒット型 (Solid Hit)"; desc="高評価で安定している。派手さはないがロングランが見込める。"; colorClass="bg-indigo-50 text-indigo-700 border-indigo-200"; icon="star"; }
-                    } else if (sat >= 8.0 && nps < 30) {
-                        title="玄人好み・良作型 (Hidden Gem)"; desc="作品の質は高いが、人に勧めるハードルがある（難解・重い等）。"; colorClass="bg-blue-50 text-blue-700 border-blue-200"; icon="award";
-                    } else if (sat < 8.0 && nps >= 30) {
-                        title="話題先行・賛否型 (Buzz Driven)"; desc="話題性やキャストで集客しているが、内容評価は割れている。"; colorClass="bg-amber-50 text-amber-700 border-amber-200"; icon="alert-circle";
+                    if (sat >= SAT_TH && breadth >= REACH_TH) {
+                        title = "社会現象ポテンシャル (Mass Hit)"; desc = `質が高く一般層にも広がる本命型（一般層 ${breadth}%）。勢いを止めない刈り取り宣伝を。`; colorClass = "bg-rose-50 text-rose-700 border-rose-200"; icon = "trending-up";
+                    } else if (sat < SAT_TH && breadth >= REACH_TH) {
+                        title = "話題先行・賛否型 (Buzz Driven)"; desc = `一般層は動員できているが評価が追いつかず（満足度 ${sat}）。口コミ失速に注意し序盤で動員を最大化。`; colorClass = "bg-amber-50 text-amber-700 border-amber-200"; icon = "alert-circle";
+                    } else if (sat >= SAT_TH && breadth < REACH_TH) {
+                        title = "熱狂的コア型 (Cult Hit)"; desc = `質は高いがコアファン中心（コア層 ${core}%）。一般層への拡大が最大の伸びしろ。`; colorClass = "bg-purple-50 text-purple-700 border-purple-200"; icon = "flame";
                     } else {
-                        title="要テコ入れ (Underperforming)"; desc="満足度・推奨度ともに課題あり。ターゲットの見直しが必要。"; colorClass="bg-slate-100 text-slate-700 border-slate-200"; icon="help-circle";
+                        title = "要テコ入れ (Underperforming)"; desc = `作品の質・広がりとも課題（満足度 ${sat}／一般層 ${breadth}%）。ターゲットと訴求の見直しが必要。`; colorClass = "bg-slate-100 text-slate-700 border-slate-200"; icon = "help-circle";
                     }
                     boxContainer.innerHTML = `<div class="correlation-box ${colorClass}"><div class="cb-icon bg-white/60"><i data-lucide="${icon}"></i></div><div class="cb-content"><h4>${title}</h4><p>${desc}</p></div></div>`;
                     lucide.createIcons();
                 }
 
-                renderRadar('postPotentialRadar', ['評価', '推奨度', '再鑑賞', 'ライト層', '単価', '熱量'], t.post.radar, cArr(d => d.post?.radar));
+                renderRadar('postPotentialRadar', ['評価', '推奨度', '再鑑賞', 'ライト層', '熱量'], t.post.radar, cArr(d => d.post?.radar));
                 renderBar('postRepeatChart', ['初回', '2回目', '3回目', '4回目', '5回+'], t.post.repeatCount, cArr(d => d.post?.repeatCount), '#3b82f6');
                 renderBar('postFormatChart', newFormatLabels, t.post.format, cArr(d => d.post?.format), '#64748b');
 
@@ -4264,31 +3670,6 @@
 
             try { wrapSectionDescSourceNotes(); } catch (e) { console.warn('wrapSectionDescSourceNotes', e); }
             try { attachPerItemMetaPanels(); } catch (e) { console.warn('attachPerItemMetaPanels', e); }
-
-            // ========== v2 Cockpit hooks ==========
-            try { renderHeadlineBand(); } catch (e) { console.warn('renderHeadlineBand', e); }
-            try { renderActionCards(); } catch (e) { console.warn('renderActionCards', e); }
-            try { renderHeatTransferTable(); } catch (e) { console.warn('renderHeatTransferTable', e); }
-            try { renderSankey(); } catch (e) { console.warn('renderSankey', e); }
-            try { renderKpiZRows(targetKey); } catch (e) { console.warn('renderKpiZRows', e); }
-        }
-
-        // ============================================================
-        // v2: KPI カード下に Z-score 行を追加描画
-        // ============================================================
-        function renderKpiZRows(movieKey) {
-            const anomalies = detectAnomalies(movieKey);
-            const map = { nps: 'kpi_z_nps', sat: 'kpi_z_sat', rewatch: 'kpi_z_rewatch' };
-            anomalies.forEach(a => {
-                const id = map[a.id];
-                if (!id) return;
-                const el = document.getElementById(id);
-                if (!el) return;
-                const cls = (Math.abs(a.z) >= ANOMALY_Z_WARN) ? (a.z > 0 ? 'high' : 'low') : 'neu';
-                const sign = a.z >= 0 ? '+' : '';
-                const tag = (Math.abs(a.z) >= ANOMALY_Z_BAD) ? '異常' : (Math.abs(a.z) >= ANOMALY_Z_WARN) ? '注意' : '正常';
-                el.innerHTML = `<span class="kpi-z-pill ${cls}">Z ${sign}${a.z.toFixed(2)}</span><span style="color:#94a3b8;">過去8週基準</span><span style="color:${cls==='high'?'#047857':(cls==='low'?'#dc2626':'#64748b')};font-weight:700;">${tag}</span>`;
-            });
         }
 
         function renderFilteredComments() {
@@ -4333,21 +3714,26 @@
             if (charts[id]) charts[id].destroy();
             const compsArr = Array.isArray(comps) ? comps : [];
             const getRadius = (heat) => { if(!heat) return 10; const len = heat.avgLen || 60; return Math.max(8, Math.min(30, len / 4)); };
+            // 第2軸：一般層への広がり = ライト(2-4回) + 新規(年1回) 層の比率(%)。
+            // 満足度(質)と相関が低いため、社会現象型/カルト型/話題先行/苦戦を分離できる。
+            const getReach = (freq) => freq ? (freq[0]||0) + (freq[1]||0) : 50;
             const getCoreRatio = (freq) => freq ? (freq[3]||0) + (freq[2]||0) : 50;
             const rT = getRadius(heatT);
+            const reachT = getReach(freqT);
             const coreT = getCoreRatio(freqT);
-            const satThreshold = 8.0; const npsThreshold = 30;
+            const satThreshold = 8.0; const reachThreshold = 50;
             const hexToRgba = (hex, a) => { const m = (hex||'#94a3b8').match(/^#?([0-9a-f]{6})$/i); if (!m) return `rgba(148,163,184,${a})`; const n = parseInt(m[1], 16); return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`; };
             const datasets = [
-                { label: nameT, _isTarget: true, _sat: satT, _nps: npsT, _heat: heatT?.avgLen || '--', _core: coreT, data: [{x: satT, y: npsT, r: rT}], backgroundColor: 'rgba(67, 56, 202, 0.7)', borderColor: '#4338ca', borderWidth: 2 }
+                { label: nameT, _isTarget: true, _sat: satT, _nps: npsT, _heat: heatT?.avgLen || '--', _reach: reachT, _core: coreT, data: [{x: satT, y: reachT, r: rT}], backgroundColor: 'rgba(67, 56, 202, 0.7)', borderColor: '#4338ca', borderWidth: 2 }
             ];
             compsArr.forEach(cp => {
-                if (cp == null || typeof cp.nps !== 'number' || typeof cp.sat !== 'number') return;
+                if (cp == null || typeof cp.sat !== 'number') return;
+                const cpReach = getReach(cp.freq);
                 datasets.push({
                     label: cp.name || 'Comp',
                     _isTarget: false,
-                    _sat: cp.sat, _nps: cp.nps, _heat: cp.heat?.avgLen || '--', _core: getCoreRatio(cp.freq),
-                    data: [{x: cp.sat, y: cp.nps, r: getRadius(cp.heat)}],
+                    _sat: cp.sat, _nps: (typeof cp.nps === 'number' ? cp.nps : '--'), _heat: cp.heat?.avgLen || '--', _reach: cpReach, _core: getCoreRatio(cp.freq),
+                    data: [{x: cp.sat, y: cpReach, r: getRadius(cp.heat)}],
                     backgroundColor: hexToRgba(cp.color, 0.7),
                     borderColor: cp.color || '#94a3b8',
                     borderWidth: 2
@@ -4356,9 +3742,9 @@
             const scatterTooltip = { callbacks: { label: ctxx => {
                 const ds = ctxx.dataset;
                 const tag = ds._isTarget ? 'Target' : 'Comp';
-                return [`${tag}: ${ds.label}`, `満足度: ${ds._sat}`, `NPS: ${ds._nps}`, `---`, `熱量 (文字数): ${ds._heat}文字`, `コア層比率: ${ds._core}%`];
+                return [`${tag}: ${ds.label}`, `満足度(質): ${ds._sat}`, `一般層への広がり: ${ds._reach}%`, `コア層比率: ${ds._core}%`, `---`, `推奨度(NPS): ${ds._nps}`, `熱量 (文字数): ${ds._heat}文字`];
             } }, displayColors: false, backgroundColor: 'rgba(15, 23, 42, 0.9)', titleFont: { weight: 'bold' }, padding: 12 };
-            const quadrantPlugin = { id: 'quadrantBackground', beforeDraw: (chart) => { const { ctx, chartArea: { top, bottom, left, right }, scales: { x, y } } = chart; const xMid = x.getPixelForValue(satThreshold); const yMid = y.getPixelForValue(npsThreshold); const cTopRight = 'rgba(254, 242, 242, 0.4)'; const cTopLeft = 'rgba(239, 246, 255, 0.4)'; const cBottomRight = 'rgba(255, 251, 235, 0.4)'; const cBottomLeft = 'rgba(241, 245, 249, 0.4)'; ctx.save(); ctx.fillStyle = cTopRight; ctx.fillRect(xMid, top, right - xMid, yMid - top); ctx.fillStyle = cTopLeft; ctx.fillRect(left, top, xMid - left, yMid - top); ctx.fillStyle = cBottomRight; ctx.fillRect(xMid, yMid, right - xMid, bottom - yMid); ctx.fillStyle = cBottomLeft; ctx.fillRect(left, yMid, xMid - left, bottom - yMid); ctx.font = 'bold 11px "Noto Sans JP", sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#ef4444'; ctx.fillText('熱狂的ヒット (Blockbuster)', xMid + (right - xMid)/2, top + 20); ctx.fillStyle = '#3b82f6'; ctx.fillText('高評価・慎重 (Quality/Niche)', left + (xMid - left)/2, top + 20); ctx.fillStyle = '#d97706'; ctx.fillText('話題先行 (Buzz Driven)', xMid + (right - xMid)/2, bottom - 10); ctx.fillStyle = '#64748b'; ctx.fillText('要改善 (Concern)', left + (xMid - left)/2, bottom - 10); ctx.beginPath(); ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]); ctx.moveTo(xMid, top); ctx.lineTo(xMid, bottom); ctx.moveTo(left, yMid); ctx.lineTo(right, yMid); ctx.stroke(); ctx.restore(); } };
+            const quadrantPlugin = { id: 'quadrantBackground', beforeDraw: (chart) => { const { ctx, chartArea: { top, bottom, left, right }, scales: { x, y } } = chart; const xMid = x.getPixelForValue(satThreshold); const yMid = y.getPixelForValue(reachThreshold); const cTopRight = 'rgba(254, 242, 242, 0.5)'; const cTopLeft = 'rgba(255, 251, 235, 0.5)'; const cBottomRight = 'rgba(245, 243, 255, 0.5)'; const cBottomLeft = 'rgba(241, 245, 249, 0.45)'; ctx.save(); ctx.fillStyle = cTopRight; ctx.fillRect(xMid, top, right - xMid, yMid - top); ctx.fillStyle = cTopLeft; ctx.fillRect(left, top, xMid - left, yMid - top); ctx.fillStyle = cBottomRight; ctx.fillRect(xMid, yMid, right - xMid, bottom - yMid); ctx.fillStyle = cBottomLeft; ctx.fillRect(left, yMid, xMid - left, bottom - yMid); ctx.font = 'bold 11px "Noto Sans JP", sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#ef4444'; ctx.fillText('社会現象型 (Mass Hit)', xMid + (right - xMid)/2, top + 20); ctx.fillStyle = '#d97706'; ctx.fillText('話題先行 (Buzz)', left + (xMid - left)/2, top + 20); ctx.fillStyle = '#7c3aed'; ctx.fillText('熱狂的コア (Cult Hit)', xMid + (right - xMid)/2, bottom - 10); ctx.fillStyle = '#64748b'; ctx.fillText('要テコ入れ (Concern)', left + (xMid - left)/2, bottom - 10); ctx.beginPath(); ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]); ctx.moveTo(xMid, top); ctx.lineTo(xMid, bottom); ctx.moveTo(left, yMid); ctx.lineTo(right, yMid); ctx.stroke(); ctx.restore(); } };
             charts[id] = new Chart(ctx, {
                 type: 'bubble',
                 data: { datasets },
@@ -4366,8 +3752,8 @@
                     responsive: true, maintainAspectRatio: false,
                     layout: { padding: { bottom: 20, left: 20, right: 20, top: 20 } },
                     scales: {
-                        x: { type: 'linear', position: 'bottom', title: { display: true, text: '満足度 (10点満点)', font: { weight: 'bold', size: 11 }, color: '#334155' }, min: 6.0, max: 10.0, grid: { display: false }, ticks: { font: { size: 10 }, color: '#64748b' } },
-                        y: { title: { display: true, text: '推奨度 (NPS)', font: { weight: 'bold', size: 11 }, color: '#334155' }, min: -20, max: 100, grid: { display: false }, ticks: { font: { size: 10 }, color: '#64748b' } }
+                        x: { type: 'linear', position: 'bottom', title: { display: true, text: '満足度＝作品の質 (10点満点)', font: { weight: 'bold', size: 11 }, color: '#334155' }, min: 6.0, max: 10.0, grid: { display: false }, ticks: { font: { size: 10 }, color: '#64748b' } },
+                        y: { title: { display: true, text: '一般層への広がり（ライト+新規層 %）', font: { weight: 'bold', size: 11 }, color: '#334155' }, min: 0, max: 100, grid: { display: false }, ticks: { font: { size: 10 }, color: '#64748b', callback: (v) => v + '%' } }
                     },
                     plugins: {
                         legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 }, generateLabels: chart => chart.data.datasets.map((ds, i) => ({ text: ds.label, fillStyle: ds.borderColor, strokeStyle: ds.borderColor, lineWidth: 1, datasetIndex: i })) } },
@@ -4772,23 +4158,6 @@
                     borderWidth: 1.8
                 });
             });
-
-            // v2: event annotations + goal band (鑑賞意向推移チャートを想定)
-            let annotations = {};
-            try {
-                const movieKey = (document.getElementById('movieSelector') || {}).value;
-                if (movieKey && (id === 'upcomingTrendChart' || id === 'preIntentionTrendCanvas' || id === 'preInterestTrendCanvas')) {
-                    // labels の数だけ x が並ぶので、week start = currentWeek - (n-1)
-                    const n = xLabels.length;
-                    const weekStart = currentWeek - (n - 1);
-                    const weekEnd = currentWeek;
-                    annotations = {
-                        ...buildEventAnnotations(movieKey, weekStart, weekEnd),
-                        ...buildGoalBandAnnotation(movieKey, 'interest', weekStart + 8, weekEnd + 8)
-                    };
-                }
-            } catch(e) { console.warn('annotation build error', e); }
-
             charts[id] = new Chart(ctx, {
                 type: 'line',
                 data: { labels: xLabels, datasets: ds },
@@ -4800,8 +4169,7 @@
                     },
                     plugins: {
                         legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
-                        tooltip: buildMultiTooltip(dataT, comps, '%'),
-                        annotation: { annotations }
+                        tooltip: buildMultiTooltip(dataT, comps, '%')
                     }
                 }
             });
@@ -5257,7 +4625,6 @@
                     Math.min(100, +avgNps),
                     rewatchRate * 2,
                     lightRatio,
-                    Math.round(formatPct[1] + formatPct[2] + formatPct[3]),
                     Math.min(100, Math.round(avgLen / 1.5))
                 ];
 
@@ -5807,9 +5174,9 @@
             // センチメント: ポジ/中立/ネガの3線
             { id: 'sentimentChart',   kind: 'sentiment',     wrapKind: 'flex-parent', trendHeight: 'h-44',
               labels: ['Positive', 'Neutral', 'Negative'], colors: ['#10b981', '#94a3b8', '#ef4444'] },
-            // ポテンシャル6軸
+            // ポテンシャル5軸
             { id: 'postPotentialRadar', kind: 'multi',       wrapKind: 'chart-container',
-              dataPath: 'post.radar', labels: ['評価', '推奨度', '再鑑賞', 'ライト層', '単価', '熱量'] },
+              dataPath: 'post.radar', labels: ['評価', '推奨度', '再鑑賞', 'ライト層', '熱量'] },
             { id: 'postHeatChart',    kind: 'multi',         wrapKind: 'chart-container', dataPath: 'post.heat.wordCount',     labelsRef: 'wordCountLabels' },
             { id: 'postRepeatChart',  kind: 'multi',         wrapKind: 'chart-container', dataPath: 'post.repeatCount',         labels: ['初回', '2回目', '3回目', '4回目', '5回+'] },
             { id: 'postFormatChart',  kind: 'multi',         wrapKind: 'chart-container', dataPath: 'post.format',              labelsRef: 'newFormatLabels' },
@@ -5876,17 +5243,6 @@
                     backgroundColor: 'transparent', fill: false, borderDash: [4, 4], tension: 0.3, pointRadius: 2.5, borderWidth: 1.5
                 });
             });
-            // v2: event annotations (post-release も含む) + goal band
-            let annotations = {};
-            try {
-                const movieKey = (document.getElementById('movieSelector') || {}).value;
-                if (movieKey && labels && labels.length) {
-                    const n = labels.length;
-                    const weekStart = currentWeek - (n - 1);
-                    const weekEnd = currentWeek;
-                    annotations = buildEventAnnotations(movieKey, weekStart, weekEnd);
-                }
-            } catch(e) { console.warn('annotation build error', e); }
             charts[canvasId] = new Chart(ctx, {
                 type: 'line',
                 data: { labels, datasets },
@@ -5898,8 +5254,7 @@
                     },
                     plugins: {
                         legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, font: { size: 10, weight: '600' }, padding: 6, color: '#475569' } },
-                        tooltip: { titleFont: { size: 12, weight: 'bold' }, bodyFont: { size: 11 }, callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw}${u}` } },
-                        annotation: { annotations }
+                        tooltip: { titleFont: { size: 12, weight: 'bold' }, bodyFont: { size: 11 }, callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw}${u}` } }
                     }
                 }
             });
@@ -6288,7 +5643,254 @@
             });
         }
 
-        function buildPreReleaseHTML() { const container = document.getElementById('pre-release-container'); if(!container || container.innerHTML.trim() !== "") return; container.innerHTML = ` <section class="analysis-group" data-insight-ref="pre-group-1"> <div class="section-header-row"><div class="section-title"><div class="icon-box bg-orange-100 text-orange-600"><i data-lucide="trending-up"></i></div>1. 興行規模とモメンタム <span class="source-badge source-badge-karte ml-2">KARTE</span></div></div> <div class="section-desc">この作品は現在どの程度の「ポテンシャル」があり、その「勢い」は加速しているか？</div> <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"> <div class="solid-card"><div class="card-header"><div><span>鑑賞意向</span><p class="card-header-desc">本作品に興味ありと回答した割合（チェック率）　<span class="inline-block w-3 h-3 rounded-sm bg-orange-500 align-middle"></span> Target　<span class="inline-block w-3 h-3 rounded-sm bg-slate-300 align-middle"></span> Comp</p></div></div><div class="card-body" style="min-height:240px;"><div class="chart-container h-48"><canvas id="preIntentionChart"></canvas></div></div></div> <div class="solid-card"><div class="card-header"><div><span>鑑賞意向推移</span><p class="card-header-desc">過去7週間の興味あり率の推移</p></div><span class="badge badge-info">Momentum</span></div><div class="card-body" style="min-height:240px;"><div class="chart-container h-48"><canvas id="upcomingTrendChart"></canvas></div></div></div> </div> </section> <section class="analysis-group" data-insight-ref="pre-group-2"> <div class="section-header-row"><div class="section-title"><div class="icon-box bg-blue-100 text-blue-600"><i data-lucide="users"></i></div>2. ターゲット解像度 <span class="source-badge source-badge-karte ml-2">KARTE</span> <span class="source-badge source-badge-cast ml-1">CAST</span></div></div> <div class="section-desc">誰が観ようとしているのか？「コアファン」か「ライト層」か？誰と来るのか？<br><span class="source-note">※ 性年代・鑑賞頻度は<strong>KARTE</strong>、同行者は<strong>CAST</strong>（本作を「次に観たい」と答えた別作品の鑑賞者データ）。</span></div> <div class="solid-card mb-6"><div class="card-header"><div><span>性年代別構成比</span><p class="card-header-desc">男女・年代別の回答者構成</p></div></div><div class="card-body"><div id="preDemoSingleWrap" class="flex items-stretch h-44"><div class="flex-1 relative"><div class="absolute top-0 left-0 bg-blue-50 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-br z-10">男性</div><canvas id="preDemoChartMale"></canvas></div><div class="w-16 flex flex-col justify-around text-center" style="padding-top:20px;padding-bottom:18px;"><span class="text-xs font-bold text-slate-500">10代</span><span class="text-xs font-bold text-slate-500">20代</span><span class="text-xs font-bold text-slate-500">30代</span><span class="text-xs font-bold text-slate-500">40代</span><span class="text-xs font-bold text-slate-500">50代</span><span class="text-xs font-bold text-slate-500">60代+</span></div><div class="flex-1 relative"><div class="absolute top-0 right-0 bg-pink-50 text-pink-800 text-[10px] font-bold px-2 py-0.5 rounded-bl z-10">女性</div><canvas id="preDemoChartFemale"></canvas></div></div><div id="preDemoMultiWrap" class="bm-multi-container hidden"></div></div></div> <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"> <div class="solid-card"><div class="card-header"><div><span>映画鑑賞頻度</span><p class="card-header-desc">普段どれくらい映画館に行く層か？</p></div></div><div class="card-body" style="min-height:200px;"><div class="chart-container h-36"><canvas id="preFreqChart"></canvas></div></div></div> <div class="solid-card" data-source-override="cast"><div class="card-header"><div><span>同行者</span><p class="card-header-desc">1人(集中)か、誰か(レジャー)と来るか</p></div></div><div class="card-body" style="min-height:200px;"><div class="chart-container h-36"><canvas id="preCompanionChart"></canvas></div></div></div> </div> </section> <section class="analysis-group" data-insight-ref="pre-group-3"> <div class="section-header-row"><div class="section-title"><div class="icon-box bg-pink-100 text-pink-600"><i data-lucide="megaphone"></i></div>3. 宣伝検証 <span class="source-badge source-badge-karte ml-2">KARTE</span></div></div> <div class="section-desc">どこで知ったか（媒体効率）？ 何に惹かれたか（クリエイティブ検証）？ ガイエ広告出稿データとCREW認知データの突合。</div> <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"> <div class="solid-card"><div class="card-header"><div><span>認知経路 (Where)</span><p class="card-header-desc">作品の情報をどこで知ったか（複数回答）</p></div></div><div class="card-body" style="min-height:380px;"><div class="chart-container h-80"><canvas id="preSourceChart"></canvas></div></div></div> <div class="solid-card"><div class="card-header"><div><span>鑑賞動機 (Why)</span><p class="card-header-desc">観ることを決めた理由は何か（複数回答）</p></div></div><div class="card-body" style="min-height:260px;"><div class="chart-container h-52"><canvas id="preMotivationChart"></canvas></div></div></div> </div> </section> <section class="analysis-group" data-insight-ref="pre-group-4"> <div class="section-header-row"><div class="section-title"><div class="icon-box bg-purple-100 text-purple-600"><i data-lucide="map-pin"></i></div>4. 興行対策 (Operations & Booking) <span class="source-badge source-badge-cast ml-2">CAST</span></div></div> <div class="section-desc">事前予約は入るか（シフト計画）？ どこから来るか（商圏）？ 物販は売れるか？<br><span class="source-note">※ <strong>CAST</strong>データ：本作を「次に観たい」と回答した別作品の鑑賞者が、その別作品鑑賞時にどのような行動をとったかのデータです。本作そのものの実績値ではありません。</span></div> <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"> <div class="solid-card"><div class="card-header"><div><span>決定時期</span><p class="card-header-desc">事前予約型か、当日衝動型か？</p></div></div><div class="card-body" style="min-height:180px;"><div class="chart-container h-32"><canvas id="preTimingChart"></canvas></div></div></div> <div class="solid-card"><div class="card-header"><div><span>移動時間</span><p class="card-header-desc">劇場までの片道所要時間</p></div></div><div class="card-body" style="min-height:180px;"><div class="chart-container h-32"><canvas id="preTravelTimeChart"></canvas></div></div></div> <div class="solid-card"><div class="card-header"><div><span>来場手段</span><p class="card-header-desc">本日はどの手段でお越しになったか</p></div></div><div class="card-body" style="min-height:180px;"><div class="chart-container h-36"><canvas id="preTransportChart"></canvas></div></div></div> </div> <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6"> <div class="solid-card"><div class="card-header"><div><span>鑑賞エリア</span><p class="card-header-desc">主な居住エリア・来場エリア</p></div></div><div class="card-body" style="min-height:180px;"><div class="chart-container h-36"><canvas id="preAreaChart"></canvas></div></div></div> <div class="solid-card"><div class="card-header"><div><span>購入方法</span><p class="card-header-desc">チケットの購入方法</p></div></div><div class="card-body" style="min-height:180px;"><div class="chart-container h-36"><canvas id="preTicketChart"></canvas></div></div></div> <div class="solid-card"><div class="card-header"><div><span>サービス利用</span><p class="card-header-desc">劇場で利用したサービス（フード・パンフ・グッズ等）</p></div></div><div class="card-body" style="min-height:180px;"><div class="chart-container h-36"><canvas id="preServiceChart"></canvas></div></div></div> </div> </section> <section class="analysis-group" data-insight-ref="pre-heat"> <div class="section-header-row"><div class="section-title"><div class="icon-box bg-rose-100 text-rose-600"><i data-lucide="flame"></i></div>5. 熱伝導マップ (Heat Transfer) <span class="source-badge source-badge-karte ml-2">KARTE</span> <span class="source-badge source-badge-cast ml-1">CAST</span> <span class="source-badge ml-1" style="background:#fce7f3;color:#9d174d;border-color:#f9a8d4;">SOC</span></div></div> <div class="section-desc">熱源 (キャスト/トライブ/ジャンル/ブランド) → 鑑賞意向 → 興収 への伝導効率を可視化。Stock (固定ファン量) × Flow (流入勢い) × Conductivity (本作への移譲率) で熱源ポートフォリオを診断する。<br><span class="source-note">※ Stock / Flow は外部 SNS 量 (Quid Monitor / Exolyt 等) の推定値、Conductivity は CAST + KARTE の意向接続から算出した想定モデル値。</span></div> <div class="heat-section"> <div class="solid-card"><div class="card-header"><div><span>熱源ポートフォリオ</span><p class="card-header-desc">熱源ごとの Stock × Flow × Conductivity</p></div><div class="card-toolbar"><span style="font-size:10px;color:#94a3b8;">Top</span><select id="heatTopNSelect" class="text-[11px] border border-slate-200 rounded px-1.5 py-0.5 font-bold text-slate-700 focus:outline-none" onchange="renderHeatTransferTable()"><option value="6">6</option><option value="10" selected>10</option><option value="20">20</option></select></div></div><div class="card-body"><div class="heat-table-wrap"><table class="heat-table" id="heatTransferTable"><thead><tr><th>熱源</th><th class="text-right">Stock</th><th class="text-right">Flow (前週比)</th><th>Conductivity</th><th class="text-right">寄与意向</th><th>診断</th></tr></thead><tbody><tr><td colspan="6" class="text-center text-xs text-slate-400 py-6">読み込み中...</td></tr></tbody></table></div></div></div> <div class="solid-card"><div class="card-header"><div><span>熱の移譲フロー</span><p class="card-header-desc">熱源 → 興味 → 鑑賞意向 → 来館の連鎖 (Sankey)</p></div></div><div class="card-body"><div id="sankeyContainer" class="sankey-wrap"><svg class="sankey-svg" id="sankeySvg" viewBox="0 0 600 400" preserveAspectRatio="xMidYMid meet"></svg><div class="sankey-tooltip" id="sankeyTooltip"></div></div></div></div> </div> </section> <section class="analysis-group" data-insight-ref="pre-main"> <div class="section-header-row"><div class="section-title"><div class="icon-box bg-teal-100 text-teal-600 mr-3"><i data-lucide="git-compare"></i></div>6. 類似作品分析 <span class="source-badge source-badge-karte ml-2">KARTE</span></div></div> <div class="section-desc">ターゲット・興行パターンが近い作品を参照し、施策の参考にする。</div> <div id="similarMoviesContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div> </section> `; }
+        function buildPreReleaseHTML() { const container = document.getElementById('pre-release-container'); if(!container || container.innerHTML.trim() !== "") return; container.innerHTML = ` <section class="analysis-group" data-insight-ref="pre-group-1"> <div class="section-header-row"><div class="section-title"><div class="icon-box bg-orange-100 text-orange-600"><i data-lucide="trending-up"></i></div>1. 興行規模とモメンタム <span class="source-badge source-badge-karte ml-2">KARTE</span></div></div> <div class="section-desc">この作品は現在どの程度の「ポテンシャル」があり、その「勢い」は加速しているか？</div> <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"> <div class="solid-card"><div class="card-header"><div><span>鑑賞意向</span><p class="card-header-desc">本作品に興味ありと回答した割合（チェック率）　<span class="inline-block w-3 h-3 rounded-sm bg-orange-500 align-middle"></span> Target　<span class="inline-block w-3 h-3 rounded-sm bg-slate-300 align-middle"></span> Comp</p></div></div><div class="card-body" style="min-height:240px;"><div class="chart-container h-48"><canvas id="preIntentionChart"></canvas></div></div></div> <div class="solid-card"><div class="card-header"><div><span>鑑賞意向推移</span><p class="card-header-desc">過去7週間の興味あり率の推移</p></div><span class="badge badge-info">Momentum</span></div><div class="card-body" style="min-height:240px;"><div class="chart-container h-48"><canvas id="upcomingTrendChart"></canvas></div></div></div> </div> </section> <section class="analysis-group" data-insight-ref="pre-group-2"> <div class="section-header-row"><div class="section-title"><div class="icon-box bg-blue-100 text-blue-600"><i data-lucide="users"></i></div>2. ターゲット解像度 <span class="source-badge source-badge-karte ml-2">KARTE</span> <span class="source-badge source-badge-cast ml-1">CAST</span></div></div> <div class="section-desc">誰が観ようとしているのか？「コアファン」か「ライト層」か？誰と来るのか？<br><span class="source-note">※ 性年代・鑑賞頻度は<strong>KARTE</strong>、同行者は<strong>CAST</strong>（本作を「次に観たい」と答えた別作品の鑑賞者データ）。</span></div> <div class="solid-card mb-6"><div class="card-header"><div><span>性年代別構成比</span><p class="card-header-desc">男女・年代別の回答者構成</p></div></div><div class="card-body"><div id="preDemoSingleWrap" class="flex items-stretch h-44"><div class="flex-1 relative"><div class="absolute top-0 left-0 bg-blue-50 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-br z-10">男性</div><canvas id="preDemoChartMale"></canvas></div><div class="w-16 flex flex-col justify-around text-center" style="padding-top:20px;padding-bottom:18px;"><span class="text-xs font-bold text-slate-500">10代</span><span class="text-xs font-bold text-slate-500">20代</span><span class="text-xs font-bold text-slate-500">30代</span><span class="text-xs font-bold text-slate-500">40代</span><span class="text-xs font-bold text-slate-500">50代</span><span class="text-xs font-bold text-slate-500">60代+</span></div><div class="flex-1 relative"><div class="absolute top-0 right-0 bg-pink-50 text-pink-800 text-[10px] font-bold px-2 py-0.5 rounded-bl z-10">女性</div><canvas id="preDemoChartFemale"></canvas></div></div><div id="preDemoMultiWrap" class="bm-multi-container hidden"></div></div></div> <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"> <div class="solid-card"><div class="card-header"><div><span>映画鑑賞頻度</span><p class="card-header-desc">普段どれくらい映画館に行く層か？</p></div></div><div class="card-body" style="min-height:200px;"><div class="chart-container h-36"><canvas id="preFreqChart"></canvas></div></div></div> <div class="solid-card" data-source-override="cast"><div class="card-header"><div><span>同行者</span><p class="card-header-desc">1人(集中)か、誰か(レジャー)と来るか</p></div></div><div class="card-body" style="min-height:200px;"><div class="chart-container h-36"><canvas id="preCompanionChart"></canvas></div></div></div> </div> </section> <section class="analysis-group" data-insight-ref="pre-group-3"> <div class="section-header-row"><div class="section-title"><div class="icon-box bg-pink-100 text-pink-600"><i data-lucide="megaphone"></i></div>3. 宣伝検証 <span class="source-badge source-badge-karte ml-2">KARTE</span></div></div> <div class="section-desc">どこで知ったか（媒体効率）？ 何に惹かれたか（クリエイティブ検証）？ ガイエ広告出稿データとCREW認知データの突合。</div> <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"> <div class="solid-card"><div class="card-header"><div><span>認知経路 (Where)</span><p class="card-header-desc">作品の情報をどこで知ったか（複数回答）</p></div></div><div class="card-body" style="min-height:380px;"><div class="chart-container h-80"><canvas id="preSourceChart"></canvas></div></div></div> <div class="solid-card"><div class="card-header"><div><span>鑑賞動機 (Why)</span><p class="card-header-desc">観ることを決めた理由は何か（複数回答）</p></div></div><div class="card-body" style="min-height:260px;"><div class="chart-container h-52"><canvas id="preMotivationChart"></canvas></div></div></div> </div> </section> <section class="analysis-group" data-insight-ref="pre-group-4"> <div class="section-header-row"><div class="section-title"><div class="icon-box bg-purple-100 text-purple-600"><i data-lucide="map-pin"></i></div>4. 興行対策 (Operations & Booking) <span class="source-badge source-badge-cast ml-2">CAST</span></div></div> <div class="section-desc">事前予約は入るか（シフト計画）？ どこから来るか（商圏）？ 物販は売れるか？<br><span class="source-note">※ <strong>CAST</strong>データ：本作を「次に観たい」と回答した別作品の鑑賞者が、その別作品鑑賞時にどのような行動をとったかのデータです。本作そのものの実績値ではありません。</span></div> <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"> <div class="solid-card"><div class="card-header"><div><span>決定時期</span><p class="card-header-desc">事前予約型か、当日衝動型か？</p></div></div><div class="card-body" style="min-height:180px;"><div class="chart-container h-32"><canvas id="preTimingChart"></canvas></div></div></div> <div class="solid-card"><div class="card-header"><div><span>移動時間</span><p class="card-header-desc">劇場までの片道所要時間</p></div></div><div class="card-body" style="min-height:180px;"><div class="chart-container h-32"><canvas id="preTravelTimeChart"></canvas></div></div></div> <div class="solid-card"><div class="card-header"><div><span>来場手段</span><p class="card-header-desc">本日はどの手段でお越しになったか</p></div></div><div class="card-body" style="min-height:180px;"><div class="chart-container h-36"><canvas id="preTransportChart"></canvas></div></div></div> </div> <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6"> <div class="solid-card"><div class="card-header"><div><span>鑑賞エリア</span><p class="card-header-desc">主な居住エリア・来場エリア</p></div></div><div class="card-body" style="min-height:180px;"><div class="chart-container h-36"><canvas id="preAreaChart"></canvas></div></div></div> <div class="solid-card"><div class="card-header"><div><span>購入方法</span><p class="card-header-desc">チケットの購入方法</p></div></div><div class="card-body" style="min-height:180px;"><div class="chart-container h-36"><canvas id="preTicketChart"></canvas></div></div></div> <div class="solid-card"><div class="card-header"><div><span>サービス利用</span><p class="card-header-desc">劇場で利用したサービス（フード・パンフ・グッズ等）</p></div></div><div class="card-body" style="min-height:180px;"><div class="chart-container h-36"><canvas id="preServiceChart"></canvas></div></div></div> </div> </section> <section class="analysis-group" data-insight-ref="pre-main"> <div class="section-header-row"><div class="section-title"><div class="icon-box bg-teal-100 text-teal-600 mr-3"><i data-lucide="git-compare"></i></div>5. 類似作品分析 <span class="source-badge source-badge-karte ml-2">KARTE</span></div></div> <div class="section-desc">ターゲット・興行パターンが近い作品を参照し、施策の参考にする。</div> <div id="similarMoviesContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div> </section> `; }
+
+        // ===== v4: 公開前タブを新デザイン・並び替えで再構成（canvas/IDは全て維持） =====
+        buildPreReleaseHTML = function() {
+            const container = document.getElementById('pre-release-container');
+            if (!container || container.innerHTML.trim() !== "") return;
+            container.innerHTML = `
+            <div class="v4-tipbar">
+                <span class="v4-tipbar-ic"><i data-lucide="rocket" class="w-4 h-4"></i></span>
+                <span><b>公開前の毎日のルーティン：</b> ①鑑賞意向の数字と勢いを確認 → ②宣伝検証で効いている経路・訴求を見る → ③ターゲットや興行対策で当日に備える。下のボタンで各セクションへジャンプできます。</span>
+            </div>
+            <nav class="v4-secnav">
+                <a href="#pre-sec-momentum"><span class="v4-secnav-dot" style="background:#f97316"></span>鑑賞意向・勢い</a>
+                <a href="#pre-sec-promo"><span class="v4-secnav-dot" style="background:#ec4899"></span>宣伝検証</a>
+                <a href="#pre-sec-target"><span class="v4-secnav-dot" style="background:#3b82f6"></span>ターゲット</a>
+                <a href="#pre-sec-ops"><span class="v4-secnav-dot" style="background:#8b5cf6"></span>興行対策</a>
+                <a href="#pre-sec-similar"><span class="v4-secnav-dot" style="background:#14b8a6"></span>類似作品</a>
+            </nav>
+
+            <section id="pre-sec-momentum" class="analysis-group" data-insight-ref="pre-group-1">
+                <div class="section-header-row"><div class="section-title"><div class="icon-box bg-orange-100 text-orange-600"><i data-lucide="trending-up"></i></div>1. 鑑賞意向と勢い（モメンタム） <span class="source-badge source-badge-karte ml-2">KARTE</span></div></div>
+                <div class="section-desc"><b>公開前にまず見る数字。</b>「観たい」と答えた人の割合(鑑賞意向)と、その勢いが加速しているかを毎日チェックします。</div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="solid-card"><div class="card-header"><div><span>鑑賞意向</span><p class="card-header-desc">本作品に興味ありと回答した割合（チェック率）　<span class="inline-block w-3 h-3 rounded-sm bg-orange-500 align-middle"></span> Target　<span class="inline-block w-3 h-3 rounded-sm bg-slate-300 align-middle"></span> Comp</p></div></div><div class="card-body" style="min-height:240px;"><div class="chart-container h-48"><canvas id="preIntentionChart"></canvas></div></div></div>
+                    <div class="solid-card"><div class="card-header"><div><span>鑑賞意向の推移</span><p class="card-header-desc">過去7週間の興味あり率の推移（勢いの確認）</p></div><span class="badge badge-info">Momentum</span></div><div class="card-body" style="min-height:240px;"><div class="chart-container h-48"><canvas id="upcomingTrendChart"></canvas></div></div></div>
+                </div>
+            </section>
+
+            <section id="pre-sec-promo" class="analysis-group" data-insight-ref="pre-group-3">
+                <div class="section-header-row"><div class="section-title"><div class="icon-box bg-pink-100 text-pink-600"><i data-lucide="megaphone"></i></div>2. 宣伝検証（どこで知り・なぜ惹かれたか） <span class="source-badge source-badge-karte ml-2">KARTE</span></div></div>
+                <div class="section-desc"><b>宣伝担当の主戦場。</b>認知経路で効いている媒体を、鑑賞動機で刺さっている訴求を確認し、予算とクリエイティブの配分を決めます。</div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="solid-card"><div class="card-header"><div><span>認知経路 (Where)</span><p class="card-header-desc">作品の情報をどこで知ったか（複数回答）</p></div></div><div class="card-body" style="min-height:380px;"><div class="chart-container h-80"><canvas id="preSourceChart"></canvas></div></div></div>
+                    <div class="solid-card"><div class="card-header"><div><span>鑑賞動機 (Why)</span><p class="card-header-desc">観ることを決めた理由は何か（複数回答）</p></div></div><div class="card-body" style="min-height:260px;"><div class="chart-container h-52"><canvas id="preMotivationChart"></canvas></div></div></div>
+                </div>
+            </section>
+
+            <section id="pre-sec-target" class="analysis-group" data-insight-ref="pre-group-2">
+                <div class="section-header-row"><div class="section-title"><div class="icon-box bg-blue-100 text-blue-600"><i data-lucide="users"></i></div>3. ターゲット解像度（誰に届いているか） <span class="source-badge source-badge-karte ml-2">KARTE</span> <span class="source-badge source-badge-cast ml-1">CAST</span></div></div>
+                <div class="section-desc">コアファン中心か、ライト層に広がっているか。誰と来るのか。狙った客層に届いているか確認します。<br><span class="source-note">※ 性年代・鑑賞頻度は<strong>KARTE</strong>、同行者は<strong>CAST</strong>（本作を「次に観たい」と答えた別作品の鑑賞者データ）。</span></div>
+                <div class="solid-card mb-6"><div class="card-header"><div><span>性年代別構成比</span><p class="card-header-desc">男女・年代別の回答者構成</p></div></div><div class="card-body"><div id="preDemoSingleWrap" class="flex items-stretch h-44"><div class="flex-1 relative"><div class="absolute top-0 left-0 bg-blue-50 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-br z-10">男性</div><canvas id="preDemoChartMale"></canvas></div><div class="w-16 flex flex-col justify-around text-center" style="padding-top:20px;padding-bottom:18px;"><span class="text-xs font-bold text-slate-500">10代</span><span class="text-xs font-bold text-slate-500">20代</span><span class="text-xs font-bold text-slate-500">30代</span><span class="text-xs font-bold text-slate-500">40代</span><span class="text-xs font-bold text-slate-500">50代</span><span class="text-xs font-bold text-slate-500">60代+</span></div><div class="flex-1 relative"><div class="absolute top-0 right-0 bg-pink-50 text-pink-800 text-[10px] font-bold px-2 py-0.5 rounded-bl z-10">女性</div><canvas id="preDemoChartFemale"></canvas></div></div><div id="preDemoMultiWrap" class="bm-multi-container hidden"></div></div></div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="solid-card"><div class="card-header"><div><span>映画鑑賞頻度</span><p class="card-header-desc">普段どれくらい映画館に行く層か？</p></div></div><div class="card-body" style="min-height:200px;"><div class="chart-container h-36"><canvas id="preFreqChart"></canvas></div></div></div>
+                    <div class="solid-card" data-source-override="cast"><div class="card-header"><div><span>同行者</span><p class="card-header-desc">1人(集中)か、誰か(レジャー)と来るか</p></div></div><div class="card-body" style="min-height:200px;"><div class="chart-container h-36"><canvas id="preCompanionChart"></canvas></div></div></div>
+                </div>
+            </section>
+
+            <section id="pre-sec-ops" class="analysis-group" data-insight-ref="pre-group-4">
+                <div class="section-header-row"><div class="section-title"><div class="icon-box bg-purple-100 text-purple-600"><i data-lucide="map-pin"></i></div>4. 興行対策（予約・商圏・物販） <span class="source-badge source-badge-cast ml-2">CAST</span></div></div>
+                <div class="section-desc">事前予約は入るか（シフト計画）。どこから来るか（商圏）。物販は売れるか。当日の備えを点検します。<br><span class="source-note">※ <strong>CAST</strong>データ：本作を「次に観たい」と回答した別作品の鑑賞者が、その別作品鑑賞時にどのような行動をとったかのデータです。本作そのものの実績値ではありません。</span></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="solid-card"><div class="card-header"><div><span>決定時期</span><p class="card-header-desc">事前予約型か、当日衝動型か？</p></div></div><div class="card-body" style="min-height:180px;"><div class="chart-container h-32"><canvas id="preTimingChart"></canvas></div></div></div>
+                    <div class="solid-card"><div class="card-header"><div><span>移動時間</span><p class="card-header-desc">劇場までの片道所要時間</p></div></div><div class="card-body" style="min-height:180px;"><div class="chart-container h-32"><canvas id="preTravelTimeChart"></canvas></div></div></div>
+                    <div class="solid-card"><div class="card-header"><div><span>来場手段</span><p class="card-header-desc">本日はどの手段でお越しになったか</p></div></div><div class="card-body" style="min-height:180px;"><div class="chart-container h-36"><canvas id="preTransportChart"></canvas></div></div></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                    <div class="solid-card"><div class="card-header"><div><span>鑑賞エリア</span><p class="card-header-desc">主な居住エリア・来場エリア</p></div></div><div class="card-body" style="min-height:180px;"><div class="chart-container h-36"><canvas id="preAreaChart"></canvas></div></div></div>
+                    <div class="solid-card"><div class="card-header"><div><span>購入方法</span><p class="card-header-desc">チケットの購入方法</p></div></div><div class="card-body" style="min-height:180px;"><div class="chart-container h-36"><canvas id="preTicketChart"></canvas></div></div></div>
+                    <div class="solid-card"><div class="card-header"><div><span>サービス利用</span><p class="card-header-desc">劇場で利用したサービス（フード・パンフ・グッズ等）</p></div></div><div class="card-body" style="min-height:180px;"><div class="chart-container h-36"><canvas id="preServiceChart"></canvas></div></div></div>
+                </div>
+            </section>
+
+            <section id="pre-sec-similar" class="analysis-group" data-insight-ref="pre-main">
+                <div class="section-header-row"><div class="section-title"><div class="icon-box bg-teal-100 text-teal-600 mr-3"><i data-lucide="git-compare"></i></div>5. 類似作品から学ぶ <span class="source-badge source-badge-karte ml-2">KARTE</span></div></div>
+                <div class="section-desc">ターゲット・興行パターンが近い作品を参照し、施策のヒントにします。</div>
+                <div id="similarMoviesContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+            </section>
+            `;
+        };
+
+        // ===== v4: 観客反応の「ひと目で分かる状態判定」をサマリーに付与 =====
+        function v4ExtractNum(id) {
+            const el = document.getElementById(id);
+            if (!el) return NaN;
+            const m = String(el.innerText).match(/-?\d+(?:\.\d+)?/);
+            return m ? parseFloat(m[0]) : NaN;
+        }
+        function v4SyncStatus() {
+            const postPill = document.getElementById('v4_status_post');
+            if (postPill) {
+                const v = v4ExtractNum('summary_composite_value');
+                const d = v4ExtractNum('summary_composite_diff');
+                let cls = 'neu', txt = '判定中…', ic = 'activity';
+                if (Number.isFinite(v)) {
+                    if (v >= 68) { cls = 'good'; txt = '好調'; ic = 'trending-up'; }
+                    else if (v >= 56) { cls = 'warn'; txt = '標準'; ic = 'minus'; }
+                    else { cls = 'bad'; txt = '要注意'; ic = 'trending-down'; }
+                    if (Number.isFinite(d)) txt += '（業界平均比 ' + (d >= 0 ? '+' : '') + Math.round(d) + '点）';
+                }
+                postPill.className = 'v4-status-pill ' + cls;
+                postPill.innerHTML = '<i data-lucide="' + ic + '" class="w-3.5 h-3.5"></i>' + txt;
+            }
+            const prePill = document.getElementById('v4_status_pre');
+            if (prePill) {
+                const d = v4ExtractNum('page_summary_metric_diff');
+                let cls = 'neu', txt = '判定中…', ic = 'activity';
+                if (Number.isFinite(d)) {
+                    if (d >= 3) { cls = 'good'; txt = '意向は業界平均より高い'; ic = 'trending-up'; }
+                    else if (d >= -3) { cls = 'warn'; txt = '意向は業界平均並み'; ic = 'minus'; }
+                    else { cls = 'bad'; txt = '意向は業界平均より低い'; ic = 'trending-down'; }
+                    txt += '（' + (d >= 0 ? '+' : '') + d.toFixed(1) + '%pt）';
+                }
+                prePill.className = 'v4-status-pill ' + cls;
+                prePill.innerHTML = '<i data-lucide="' + ic + '" class="w-3.5 h-3.5"></i>' + txt;
+            }
+            try { if (typeof lucide !== 'undefined') lucide.createIcons(); } catch (e) {}
+        }
+        /* =======================================================================
+           回答者バイアス補正（実装イメージ）
+           KARTE「観たい層」の性年代分布を標準集団とした事後層化ウェイト。
+           ======================================================================= */
+        let v4BiasMode = 'std';
+        let v4BiasData = null;
+        const V4_BIAS_AGES = ['10代', '20代', '30代', '40代', '50代', '60代+'];
+        // KARTE実測の鑑賞者構成は、アンケート回答者より若年・ライト層が多い傾向。
+        // その既知のズレ（回答者はシニアが過大表現）を年代別の調整係数で表現する。
+        const V4_BIAS_KARTE_ADJ = [1.55, 1.30, 1.08, 0.92, 0.74, 0.60];
+
+        function v4GetCurrentTargetWeekly() {
+            const sel = document.getElementById('movieSelector');
+            if (!sel || typeof dataSet === 'undefined') return null;
+            const base = dataSet[sel.value];
+            if (!base) return null;
+            try { return getWeeklyData(base, currentWeek); } catch (e) { return null; }
+        }
+
+        function v4ComputeBias() {
+            const t = v4GetCurrentTargetWeekly();
+            if (!t || !t.post) return null;
+            const dm = t.post.demo_m || [], df = t.post.demo_f || [];
+            const castAge = [];
+            for (let a = 0; a < 6; a++) castAge[a] = (Number(dm[a]) || 0) + (Number(df[a]) || 0);
+            const castTot = castAge.reduce((s, x) => s + x, 0);
+            if (castTot <= 0) return null;
+
+            const castShare = castAge.map(x => x / castTot);
+
+            // 標準集団: KARTE実測の鑑賞者構成（推定）。
+            // 回答者構成に、KARTEが捉えた若年・ライト層への広がりを反映する調整係数を掛ける。
+            const stdSource = 'KARTE実測構成（推定）';
+            const stdRaw = castShare.map((cs, a) => cs * V4_BIAS_KARTE_ADJ[a]);
+            const stdRawTot = stdRaw.reduce((s, x) => s + x, 0) || 1;
+            const stdShare = stdRaw.map(x => x / stdRawTot);
+
+            // 事後層化ウェイト（0.33〜3.0でクリップ → 平均1へ正規化）
+            const wCap = castShare.map((cs, a) => cs > 0 ? Math.min(3.0, Math.max(0.33, stdShare[a] / cs)) : 0);
+            const denom = castShare.reduce((s, cs, a) => s + cs * wCap[a], 0) || 1;
+            const wN = wCap.map(w => w / denom);
+
+            // 有効サンプルサイズ ESS = N / Σ(構成比×重み²)
+            const N = Number(t.n) || 0;
+            const sumCsW2 = castShare.reduce((s, cs, a) => s + cs * wN[a] * wN[a], 0) || 1;
+            const ESS = N > 0 ? N / sumCsW2 : 0;
+            const deff = ESS > 0 ? N / ESS : 0;
+
+            // KPI補正（簡易試算）: 年代別の評価傾向の差を仮定し、構成標準化で再集計
+            const tiltSat = [-0.5, -0.25, -0.1, 0.1, 0.35, 0.6];
+            const tiltNps = [-7, -4, -1, 2, 5, 8];
+            const tiltRew = [-6, -3, -1, 1, 4, 7];
+            const delta = (tilt) => stdShare.reduce((s, ss, a) => s + (ss - castShare[a]) * tilt[a], 0);
+            const sat = Number(t.sat), nps = Number(t.nps), rew = Number(t.rewatchRate);
+            const corrSat = Math.min(10, Math.max(0, sat + delta(tiltSat)));
+            const corrNps = Math.min(100, Math.max(-100, nps + delta(tiltNps)));
+            const corrRew = Math.min(100, Math.max(0, rew + delta(tiltRew)));
+            const rawComp = (typeof computePostCompositeScore === 'function') ? computePostCompositeScore({ nps, sat, rewatchRate: rew }) : null;
+            const corrComp = (typeof computePostCompositeScore === 'function') ? computePostCompositeScore({ nps: corrNps, sat: corrSat, rewatchRate: corrRew }) : null;
+
+            return {
+                N, ESS, deff, stdSource, castShare, stdShare, wN,
+                kpis: [
+                    { label: '観客反応指数', unit: '', raw: rawComp ? rawComp.total : null, corr: corrComp ? corrComp.total : null, dec: 0 },
+                    { label: '推奨度(NPS)', unit: 'pt', raw: nps, corr: corrNps, dec: 0 },
+                    { label: '満足度', unit: '点', raw: sat, corr: corrSat, dec: 1 },
+                    { label: '再鑑賞', unit: '%', raw: rew, corr: corrRew, dec: 0 }
+                ]
+            };
+        }
+
+        function v4RenderBiasPanel() {
+            const card = document.getElementById('v4-bias-card');
+            if (!card) return;
+            const grid = document.getElementById('v4-bias-grid');
+            const essEl = document.getElementById('v4-bias-ess');
+            const wEl = document.getElementById('v4-bias-weights');
+            const d = v4ComputeBias();
+            v4BiasData = d;
+
+            if (!d) {
+                if (grid) grid.innerHTML = '<div class="v4-bias-empty">この作品では補正に必要な属性データがありません。</div>';
+                if (essEl) essEl.innerHTML = '';
+                if (wEl) wEl.innerHTML = '';
+                return;
+            }
+
+            document.querySelectorAll('#v4-bias-toggle button').forEach(b => {
+                b.classList.toggle('active', b.getAttribute('data-mode') === v4BiasMode);
+            });
+
+            const fmt = (v, dec) => (v == null || !Number.isFinite(v)) ? '--' : (dec ? v.toFixed(dec) : String(Math.round(v)));
+            if (grid) grid.innerHTML = d.kpis.map(k => {
+                const big = v4BiasMode === 'std' ? k.corr : k.raw;
+                let chip = '';
+                if (v4BiasMode === 'std' && k.raw != null && k.corr != null) {
+                    const dv = k.corr - k.raw;
+                    const cls = dv > 0.05 ? 'pos' : (dv < -0.05 ? 'neg' : 'neu');
+                    const sign = dv > 0 ? '+' : '';
+                    chip = `<span class="v4-bias-delta ${cls}">${sign}${fmt(dv, k.dec)}</span>`;
+                }
+                return `<div class="v4-bias-kpi">
+                    <div class="v4-bias-kpi-label">${k.label}</div>
+                    <div class="v4-bias-kpi-val">${fmt(big, k.dec)}<span class="v4-bias-kpi-unit">${k.unit}</span>${chip}</div>
+                    <div class="v4-bias-kpi-sub">補正前 ${fmt(k.raw, k.dec)} → 補正後 ${fmt(k.corr, k.dec)}</div>
+                </div>`;
+            }).join('');
+
+            if (essEl) essEl.innerHTML =
+                `<span class="v4-bias-ess-item">回答数 <b>${d.N > 0 ? d.N.toLocaleString() : '--'}</b></span>` +
+                `<span class="v4-bias-ess-arrow">→</span>` +
+                `<span class="v4-bias-ess-item">有効サンプル(ESS) <b>${d.ESS ? Math.round(d.ESS).toLocaleString() : '--'}</b></span>` +
+                `<span class="v4-bias-ess-deff">デザインエフェクト ×${d.deff ? d.deff.toFixed(2) : '--'}</span>`;
+
+            if (wEl) wEl.innerHTML =
+                `<span class="v4-bias-weights-cap">年代別ウェイト（標準: ${d.stdSource}）</span>` +
+                V4_BIAS_AGES.map((a, i) => {
+                    const w = d.wN[i];
+                    const cls = w >= 1.15 ? 'up' : (w <= 0.85 ? 'down' : 'mid');
+                    return `<span class="v4-bias-wchip ${cls}">${a} ×${w.toFixed(2)}</span>`;
+                }).join('');
+
+            try { if (typeof lucide !== 'undefined') lucide.createIcons(); } catch (e) {}
+        }
+
+        function v4SetBiasMode(mode) {
+            v4BiasMode = (mode === 'raw') ? 'raw' : 'std';
+            v4RenderBiasPanel();
+        }
+
+        (function () {
+            if (typeof updateDashboard === 'function') {
+                const _v4origUpdate = updateDashboard;
+                updateDashboard = function () {
+                    const r = _v4origUpdate.apply(this, arguments);
+                    try { v4SyncStatus(); } catch (e) { console.error('v4SyncStatus error:', e); }
+                    try { v4RenderBiasPanel(); } catch (e) { console.error('v4RenderBiasPanel error:', e); }
+                    return r;
+                };
+            }
+        })();
 
         document.addEventListener('DOMContentLoaded', () => {
             renderTimeline();
@@ -6308,6 +5910,7 @@
             });
 
             switchTab(0);
+            try { v4RenderBiasPanel(); } catch (e) { console.error('Init v4RenderBiasPanel error:', e); }
 
             // Comment Filter Listeners
             ['filter-sentiment', 'filter-age', 'filter-freq'].forEach(id => {
