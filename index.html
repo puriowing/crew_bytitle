@@ -974,6 +974,7 @@
   .ms-row span+.ms-ch{margin-left:auto}
   .ms-row.out{color:var(--bad);border-bottom:none}
   .ms-row.out svg{color:var(--bad)}
+  .ku{font-size:.62em;font-weight:700;margin-left:1px;font-family:'Noto Sans JP',sans-serif;letter-spacing:0}
   .ms-ver{text-align:center;font-size:11px;color:var(--sub-weak);margin-top:10px}
   @media(max-width:820px){
     .sidebar{position:static;height:0;min-height:0;padding:0;border:none;overflow:visible;background:none}
@@ -1119,7 +1120,7 @@
   <button class="ms-row" onclick="closeMSheet();openCompareDrawer()"><i data-lucide="git-compare-arrows"></i><span>比べる作品</span><small id="mCmpTx"></small><i data-lucide="chevron-right" class="ms-ch"></i></button>
   <button class="ms-row" onclick="closeMSheet();openPalette()"><i data-lucide="search"></i><span>指標を検索</span><i data-lucide="chevron-right" class="ms-ch"></i></button>
   <button class="ms-row out" onclick="closeMSheet();logout()"><i data-lucide="log-out"></i><span>ログアウト</span></button>
-  <div class="ms-ver">表示の版：2026-10-30 10:28</div>
+  <div class="ms-ver">表示の版：2026-10-30 17:22</div>
 </div>
 
 <div id="appHint" class="app-hint" role="dialog" aria-label="ホーム画面に追加">
@@ -4737,8 +4738,17 @@ function setView(v){
   else { render(); }
   setTimeout(()=>{ const el=document.getElementById('ds-'+v); if(el)el.scrollIntoView({block:'start',behavior:'smooth'}); },60);
 }
+/* 大きな数字の「万・億・円」などの漢字単位を、数字より小さく表示する */
+function shrinkUnits(root){ if(!root)return;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT), hits=[]; let n;
+  while((n=w.nextNode())){ if(/\d[万億兆円]/.test(n.textContent)&&n.parentElement&&!n.parentElement.closest('.ku,script,style,option,select,textarea,small'))hits.push(n); }
+  hits.forEach(n=>{ const p=n.parentElement, cs=getComputedStyle(p);
+    if(!/Roboto/.test(cs.fontFamily)||parseFloat(cs.fontSize)<14)return;
+    const tmp=document.createElement('span');
+    tmp.innerHTML=n.textContent.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])).replace(/(\d)([万億兆]?円|[万億兆])/g,'$1<span class="ku">$2</span>');
+    n.replaceWith(...tmp.childNodes); }); }
 /* 小数の計算誤差（60.900000000000006 など）を表示前に丸める */
-function tidyFloats(root){ if(!root)return; const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT); let n;
+function tidyFloats(root){ if(!root)return; setTimeout(()=>shrinkUnits(root),0); const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT); let n;
   while((n=w.nextNode())){ if(/\d\.\d{6,}/.test(n.textContent)) n.textContent=n.textContent.replace(/\d+\.\d{6,}/g,m=>String(+(+m).toFixed(1))); } }
 function renderPage(snap){
   const host=document.getElementById('page'); if(!host)return;
@@ -4782,6 +4792,7 @@ function render(){
   updateNav(snap);
   updateCompareTrigger();
   if(window.lucide)lucide.createIcons();
+  shrinkUnits(document.getElementById('kpiBar'));
   updateMobileBar();
   saveAppState();
 }
