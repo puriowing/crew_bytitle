@@ -2,8 +2,16 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>CREW 作品分析</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#5a1627">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CREW作品">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
@@ -911,6 +919,32 @@
     .grid2,.grid3{grid-template-columns:minmax(0,1fr)!important}
     .grid2>*,.grid3>*{min-width:0}
   }
+
+  /* ================= スマホアプリ表示（下部タブ・ホーム画面に追加） ================= */
+  @media(max-width:820px){
+    .sidebar{padding-top:env(safe-area-inset-top)}
+    body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+    .sb-nav{position:fixed;left:0;right:0;bottom:0;z-index:66;display:flex;flex-direction:row;overflow:visible;padding:0 0 env(safe-area-inset-bottom);background:var(--bar);border-top:1px solid var(--bar-line);box-shadow:0 -4px 16px rgba(0,0,0,.18)}
+    .sb-nav .tab{flex:1 1 0;min-width:0;position:relative;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 1px 7px;font-size:10px;letter-spacing:-.02em;border-bottom:none;border-top:3px solid transparent;white-space:nowrap}
+    .sb-nav .tab>span:not(.nav-sig){display:none}
+    .sb-nav .tab::after{font-size:10.5px;font-weight:700}
+    .sb-nav .tab[data-page=home]::after{content:'今日'}
+    .sb-nav .tab[data-page=reach]::after{content:'認知'}
+    .sb-nav .tab[data-page=want]::after{content:'意向'}
+    .sb-nav .tab[data-page=works]::after{content:'施策'}
+    .sb-nav .tab[data-page=who]::after{content:'客層'}
+    .sb-nav .tab[data-page=outlook]::after{content:'見通し'}
+    .sb-nav .tab svg{width:20px;height:20px}
+    .sb-nav .tab.active{border-bottom:none;border-top-color:var(--accent);background:var(--bar-deep)}
+    .sb-nav .tab .nav-sig{position:absolute;top:7px;right:calc(50% - 17px);width:7px;height:7px;margin:0}
+    .toast{bottom:calc(80px + env(safe-area-inset-bottom))}
+  }
+  .app-hint{position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:67;display:none;align-items:center;gap:10px;background:#fff;color:var(--ink);border:1px solid var(--rule2);border-left:4px solid var(--bar);box-shadow:0 8px 24px rgba(0,0,0,.18);padding:11px 12px;font-size:12px;line-height:1.55}
+  .app-hint.show{display:flex}
+  .app-hint img{width:36px;height:36px;border-radius:8px;flex-shrink:0}
+  .app-hint b{display:block;font-size:12.5px}
+  .app-hint .ah-go{flex-shrink:0;background:var(--bar);color:#fff;border:none;font-weight:800;font-size:12px;padding:8px 12px;cursor:pointer}
+  .app-hint .ah-x{flex-shrink:0;background:none;border:none;color:var(--sub);font-size:18px;line-height:1;cursor:pointer;padding:4px}
 </style>
 </head>
 <body>
@@ -1010,6 +1044,13 @@
 <div id="mdefPop"></div>
 
 <div id="toast" class="toast"></div>
+
+<div id="appHint" class="app-hint" role="dialog" aria-label="ホーム画面に追加">
+  <img src="icons/icon-192.png" alt="">
+  <div style="flex:1;min-width:0"><b>アプリとして使えます</b><span id="appHintTx"></span></div>
+  <button id="appHintGo" class="ah-go" style="display:none" onclick="installApp()">追加する</button>
+  <button class="ah-x" onclick="dismissAppHint()" aria-label="閉じる">×</button>
+</div>
 
 <!-- ===== 指標を検索（⌘K） ===== -->
 <div id="cmdkMask" class="cmdk-mask" onclick="closePalette()">
@@ -2826,7 +2867,7 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 function showLogin(){ const el=document.getElementById('loginScreen'); if(el)el.classList.add('show'); }
 function hideLogin(){ const el=document.getElementById('loginScreen'); if(el)el.classList.remove('show'); }
 function login(id){ const a=ACCOUNTS.find(x=>x.id===id); if(!a)return; state.account=a; state.viewer=a.company; hideLogin(); sanitizeCompareKeys(); updateCompareTrigger(); render(); }
-function logout(){ state.account=null; state.viewer=null; destroyCharts(); updateKpiBar(); showLogin(); }
+function logout(){ try{localStorage.removeItem(APP_KEY);}catch(e){} state.account=null; state.viewer=null; destroyCharts(); updateKpiBar(); showLogin(); }
 function updateViewerUI(){
   const pill=document.getElementById('fwPill');
   if(pill){ const own=isOwn(); const admin=state.account&&state.account.role==='admin';
@@ -4664,6 +4705,7 @@ function render(){
   updateNav(snap);
   updateCompareTrigger();
   if(window.lucide)lucide.createIcons();
+  saveAppState();
 }
 
 /* ---------- 上部コントロールの状態同期（今日ボタン・前日比/先週比） ---------- */
@@ -8468,12 +8510,45 @@ function renderCompareSimilar(snap,el,sl,own,ownIsMine,ownBadge,stat){
 }
 
 /* ---------- boot ---------- */
+/* ---------- スマホアプリとしての動き ---------- */
+const APP_KEY='crew_bytitle_app';
+function saveAppState(){
+  if(!state.account)return;
+  try{ localStorage.setItem(APP_KEY,JSON.stringify({acc:state.account.id,movie:state.movie,page:state.page})); }catch(e){}
+}
+function restoreAppState(){
+  let s=null; try{ s=JSON.parse(localStorage.getItem(APP_KEY)||'null'); }catch(e){}
+  if(!s||!ACCOUNTS.find(a=>a.id===s.acc))return false;
+  if(s.movie&&document.querySelector(`#movieSel option[value="${s.movie}"]`)){ state.movie=s.movie; document.getElementById('movieSel').value=s.movie; }
+  if(s.page&&PAGES[s.page])state.page=s.page;
+  login(s.acc); return true;
+}
+const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+let _installEvt=null;
+window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); _installEvt=e; showAppHint(); });
+function showAppHint(){
+  if(isStandalone()||window.innerWidth>820)return;
+  try{ if(localStorage.getItem(APP_KEY+'_hint'))return; }catch(e){}
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  const tx=document.getElementById('appHintTx'), go=document.getElementById('appHintGo');
+  if(_installEvt){ tx.textContent='ホーム画面に追加すると、全画面ですぐ開けます。'; go.style.display=''; }
+  else if(ios){ tx.innerHTML='下の共有ボタン <b style="display:inline">□↑</b> →「ホーム画面に追加」で、全画面ですぐ開けます。'; go.style.display='none'; }
+  else return;
+  document.getElementById('appHint').classList.add('show');
+}
+function dismissAppHint(){ document.getElementById('appHint').classList.remove('show'); try{localStorage.setItem(APP_KEY+'_hint','1');}catch(e){} }
+async function installApp(){ if(!_installEvt)return; _installEvt.prompt(); try{ await _installEvt.userChoice; }catch(e){} _installEvt=null; dismissAppHint(); }
+if('serviceWorker' in navigator && /^https?:/.test(location.protocol)){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+
 window.addEventListener('DOMContentLoaded',()=>{
   if(window.Chart){ Chart.defaults.color='#4d463a'; Chart.defaults.borderColor='#e0d8c4'; Chart.defaults.font.family="'Noto Sans JP', sans-serif"; }
   sanitizeCompareKeys();
   updateCompareTrigger();
-  render();
+  if(!restoreAppState())render();
   if(window.lucide)lucide.createIcons();
+  setTimeout(showAppHint,1500);
 });
 document.addEventListener('keydown',e=>{
   if((e.metaKey||e.ctrlKey)&&(e.key==='k'||e.key==='K')){ e.preventDefault(); _pal.open?closePalette():openPalette(); return; }
