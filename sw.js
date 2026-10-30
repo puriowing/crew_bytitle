@@ -1,4 +1,4 @@
-const CACHE = 'crew-bytitle-v2';
+const CACHE = 'crew-bytitle-v3';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
