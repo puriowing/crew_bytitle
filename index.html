@@ -866,6 +866,51 @@
     .ev-grid>.ev+.ev{border-top:1px solid var(--rule)}
     .pg-q .pq-sig{margin-left:0;width:100%}
   }
+  /* ================= スマホ幅の調整 ================= */
+  @media(max-width:820px){
+    .nav-group{display:none}
+    .sb-nav .tab{padding:9px 14px;font-size:13px}
+    .sb-nav .tab .lbl-sub{display:none}
+    #sbAccount{display:flex;flex-direction:row;align-items:center;gap:10px;padding:8px 16px;border-top:1px solid var(--bar-line)}
+    #sbAccount .acc-l,#sbAccount .acc-n small{display:none}
+    #sbAccount .acc-out{margin-left:auto;align-self:center}
+    .tb-inner{flex-wrap:wrap;gap:8px;padding:10px 14px 12px}
+    .tb-inner .sel{flex:1 1 200px;min-width:0;max-width:none}
+    .cmp-trigger{flex:1 1 160px;min-width:0;max-width:none}
+    .cmp-trigger .ct-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .tb-div{display:none}
+    .dayctl{flex:1 1 100%;max-width:none;gap:12px}
+    .kpibar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible}
+    .kpibar .kc{min-width:0;padding:8px 12px;border-bottom:1px solid var(--rule)}
+    .kpibar .kc .kv{font-size:17px}
+    .wrap{padding:0 14px}
+    .sec-title{flex-wrap:wrap;row-gap:4px;font-size:17px}
+    .sec-title small{flex-basis:100%;margin-left:40px;line-height:1.5}
+    .hero-l{min-width:0;padding:18px 18px 16px}
+    .hero-r{padding:14px 18px}
+    .hero-label{font-size:25px}
+    .hero-verdict{font-size:15px}
+    .bn{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible}
+    .bn-s{min-width:0;padding:12px 12px 13px}
+    .bn-s:nth-child(odd){border-left:none}
+    .bn-s:nth-child(n+3){border-top:1px solid var(--rule)}
+    .bn-s .bs-v{font-size:19px}
+    .ev-grid,.ev-grid.lead{grid-template-columns:1fr!important}
+    .ev-grid.lead>.ev:first-child{grid-column:auto}
+    .ev{border-left:none;border-top:1px solid var(--rule)}
+    .ev:first-child{border-top:none}
+    .pg-head{padding:13px 14px 12px}
+    .pg-q .pq-sig{margin-left:0}
+    .card-pad{padding:16px 14px}
+    .snsstat{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+    #page div[style*="display:flex"]{flex-wrap:wrap}
+    #page span[style*="flex:0 0"]{flex:1 1 100%!important}
+    #page span[style*="width:112px"]{width:auto!important;margin-left:auto}
+    .plan-card{padding:13px 14px}
+    .pc-kpi{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px}
+    .grid2,.grid3{grid-template-columns:minmax(0,1fr)!important}
+    .grid2>*,.grid3>*{min-width:0}
+  }
 </style>
 </head>
 <body>
@@ -4216,7 +4261,7 @@ function pgWho(snap){
     if(!k)cards='<div class="muted" style="padding:16px">この作品は調査データがありません。</div>';
     else{
       const awareRate=100-k.ninti.find(x=>x[0]==='知らない')[1];
-      const intentRate=k.intent[0][1]+k.intent[1][1];
+      const intentRate=+(k.intent[0][1]+k.intent[1][1]).toFixed(1);
       const iAge=[...k.intentByAge].sort((a,b)=>b[1]-a[1])[0];
       cards=[
         evCard({ic:'cake',t:'基準日時点の調査',k:'最も観たい層',v:iAge[0],u:'',d:`<span>観たい率 ${iAge[1]}%</span>`,r:'いま最も来てもらいやすい層。ここへの露出は効率が高くなります。'}),
@@ -4538,6 +4583,7 @@ function mountDeep(v,snap){
     if(acc==='benchmark')host.insertAdjacentHTML('afterbegin',fwBannerHTML());
     applyCapTags(host,v);
     tagChartsWithCompare(host);
+    tidyFloats(host);
     state.view=prevView;
   }
   if(window.lucide)lucide.createIcons();
@@ -4573,6 +4619,9 @@ function setView(v){
   else { render(); }
   setTimeout(()=>{ const el=document.getElementById('ds-'+v); if(el)el.scrollIntoView({block:'start',behavior:'smooth'}); },60);
 }
+/* 小数の計算誤差（60.900000000000006 など）を表示前に丸める */
+function tidyFloats(root){ if(!root)return; const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT); let n;
+  while((n=w.nextNode())){ if(/\d\.\d{6,}/.test(n.textContent)) n.textContent=n.textContent.replace(/\d+\.\d{6,}/g,m=>String(+(+m).toFixed(1))); } }
 function renderPage(snap){
   const host=document.getElementById('page'); if(!host)return;
   resetEvReads();
@@ -4581,6 +4630,7 @@ function renderPage(snap){
   tagChartsWithCompare(host);
   applyCapTags(host,state.page);
   (PAGES[state.page].deep||[]).forEach(b=>{ if(state.deepOpen[b.v])mountDeep(b.v,snap); });
+  tidyFloats(host);
 }
 function updateNav(snap){
   document.querySelectorAll('.sb-nav .tab').forEach(t=>{
@@ -4885,7 +4935,7 @@ function todayCastCard(snap){
   if(snap.d<0){
     const k=karteOf(snap.key);
     const awareRate=100-k.ninti.find(x=>x[0]==='知らない')[1];
-    const intentRate=k.intent[0][1]+k.intent[1][1];
+    const intentRate=+(k.intent[0][1]+k.intent[1][1]).toFixed(1);
     const iAge=[...k.intentByAge].sort((a,b)=>b[1]-a[1])[0];
     const fc=karteForecastSim(snap.key,snap.d);   // 施策シミュレーション連動（実施済み施策のみ反映）
     const streamWait=k.channel.find(x=>x[0]==='配信を待つ')[1];
@@ -6590,7 +6640,7 @@ function renderKarte(snap){
   const key=snap.key, el=document.getElementById('view-audience'), k=karteOf(key);
   const awareRate=100-k.ninti.find(x=>x[0]==='知らない')[1];
   const deepRate=k.ninti[0][1];
-  const intentRate=k.intent[0][1]+k.intent[1][1];
+  const intentRate=+(k.intent[0][1]+k.intent[1][1]).toFixed(1);
   const curW=Math.floor(snap.d/7);
   const tr=karteTrend(key).filter(t=>t.w<=curW); if(!tr.length)tr.push(karteTrend(key)[0]);
   const prev=tr.length>1?tr[tr.length-2]:tr[0], last=tr[tr.length-1];
@@ -6607,7 +6657,7 @@ function renderKarte(snap){
   const liftGap=k.liftExposed-k.liftUnexposed;
   const topCre=k.creative[0], topRival=k.rival[0];
   const kpi=(v,l,d,unit)=>`<div style="flex:1;text-align:center;padding:6px 4px">
-      <div class="num-font" style="font-size:34px;line-height:1;color:var(--ink)">${v}<span style="font-size:16px">${unit||'%'}</span></div>
+      <div class="num-font" style="font-size:34px;line-height:1;color:var(--ink)">${typeof v==='number'?+v.toFixed(1):v}<span style="font-size:16px">${unit||'%'}</span></div>
       <div class="kick" style="margin-top:6px">${l}</div>
       ${d!=null?`<div style="font-size:11px;font-weight:800;margin-top:4px;color:${d>=0?'var(--good)':'var(--accent)'}">${d>=0?'▲':'▼'}${Math.abs(d)}pt <span class="muted" style="font-weight:600">前週比</span></div>`:''}
     </div>`;
@@ -6842,7 +6892,7 @@ function renderCross(key){
         <div style="display:flex;gap:10px;margin:10px 0 4px">
           <div style="flex:1;text-align:center;padding:12px 4px;background:#ffffff"><div class="num-font" style="font-size:28px;color:var(--good)">${repSat}</div><div class="kick" style="margin-top:4px">リピーター満足度</div></div>
           <div style="flex:1;text-align:center;padding:12px 4px;background:#ffffff"><div class="num-font" style="font-size:28px;color:var(--ink)">${firstSat}</div><div class="kick" style="margin-top:4px">初見の満足度</div></div>
-          <div style="flex:1;text-align:center;padding:12px 4px;background:#ffffff"><div class="num-font" style="font-size:28px;color:${EPAL.accent}">${repShare}<span style="font-size:14px">%</span></div><div class="kick" style="margin-top:4px">再鑑賞ありの割合</div></div>
+          <div style="flex:1;text-align:center;padding:12px 4px;background:#ffffff"><div class="num-font" style="font-size:28px;color:${EPAL.accent}">${+(+repShare).toFixed(1)}<span style="font-size:14px">%</span></div><div class="kick" style="margin-top:4px">再鑑賞ありの割合</div></div>
         </div>
         <div class="insight" style="margin-top:10px">🔁 リピーターは初見より満足度が高く、<b>「${c.motive[0][0]}」を強い動機</b>に再訪します。<b>リピート訴求（応援上映・特典・SNS拡散）</b>で厚くできる層です。</div>
       </div>
@@ -6886,7 +6936,7 @@ function reviewNarrative(gap){
 function renderReview(snap){
   const key=snap.key, el=document.getElementById('view-review');
   const k=karteOf(key), c=castOf(key), p=PROFILES[key], post=snap.d>=0;
-  const intentRate=k.intent[0][1]+k.intent[1][1];
+  const intentRate=+(k.intent[0][1]+k.intent[1][1]).toFixed(1);
   const nps=c.nps.prom-c.nps.det;
   const preV=SNS[key].posts.filter(x=>x.ph==='pre'||x.ph==='both');
   const postV=SNS[key].posts.filter(x=>x.ph==='post'||x.ph==='both');
