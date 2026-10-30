@@ -1120,7 +1120,7 @@
   <button class="ms-row" onclick="closeMSheet();openCompareDrawer()"><i data-lucide="git-compare-arrows"></i><span>比べる作品</span><small id="mCmpTx"></small><i data-lucide="chevron-right" class="ms-ch"></i></button>
   <button class="ms-row" onclick="closeMSheet();openPalette()"><i data-lucide="search"></i><span>指標を検索</span><i data-lucide="chevron-right" class="ms-ch"></i></button>
   <button class="ms-row out" onclick="closeMSheet();logout()"><i data-lucide="log-out"></i><span>ログアウト</span></button>
-  <div class="ms-ver">表示の版：2026-10-30 17:22</div>
+  <div class="ms-ver">表示の版：2026-10-30 19:30</div>
 </div>
 
 <div id="appHint" class="app-hint" role="dialog" aria-label="ホーム画面に追加">
@@ -3951,7 +3951,7 @@ function rkBar(metric,snap,curOverride){
   const cls=r.pos>=66?'hi':(r.pos<=33?'lo':'');
   return `<div class="rk" title="${r.tip}">
     <div class="rk-bar"><span class="rk-md"></span><span class="rk-mk" style="left:${r.pos.toFixed(0)}%"></span></div>
-    <span class="rk-t ${cls}">${r.lab}<b> ${r.tie?'同率':''}${r.rank}位</b>/${r.n}</span></div>`;
+    <span class="rk-t ${cls}">${r.lab==='計測作品'?`計測中${r.n}作品中`:`${r.lab}${r.n}本中`}<b> ${r.tie?'同率':''}${r.rank}位</b></span></div>`;
 }
 
 /* ---------- 根拠カード ---------- */
