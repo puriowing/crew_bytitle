@@ -8640,7 +8640,11 @@ function showAppHint(){
 function dismissAppHint(){ document.getElementById('appHint').classList.remove('show'); try{localStorage.setItem(APP_KEY+'_hint','1');}catch(e){} }
 async function installApp(){ if(!_installEvt)return; _installEvt.prompt(); try{ await _installEvt.userChoice; }catch(e){} _installEvt=null; dismissAppHint(); }
 if('serviceWorker' in navigator && /^https?:/.test(location.protocol)){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{}));
+  // 新しい版が届いたら一度だけ自動で読み直す
+  let _swReloaded=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(_swReloaded)return; _swReloaded=true; location.reload(); });
+  document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible')navigator.serviceWorker.getRegistration().then(r=>r&&r.update()).catch(()=>{}); });
 }
 
 window.addEventListener('DOMContentLoaded',()=>{
